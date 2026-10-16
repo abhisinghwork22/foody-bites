@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foody Bites - Craving Solutions</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff9f0; margin: 0; padding: 0; color: #333; }
+        header { background-color: #d9534f; color: white; text-align: center; padding: 20px; }
+        header h1 { margin: 0; font-size: 24px; }
+        header p { margin: 5px 0 0; font-style: italic; }
+        .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { color: #d9534f; border-bottom: 2px solid #eee; padding-bottom: 5px; font-size: 18px; margin-top: 20px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding-bottom: 8px; border-bottom: 1px dashed #ddd; }
+        .item-details { flex-grow: 1; }
+        .item-name { font-weight: bold; }
+        .item-price { color: #e67e22; font-size: 14px; }
+        input[type="number"] { width: 50px; padding: 4px; text-align: center; margin-left: 10px; }
+        .order-btn { display: block; width: 100%; background-color: #25D366; color: white; text-align: center; padding: 15px; font-size: 18px; font-weight: bold; text-decoration: none; border-radius: 5px; margin-top: 20px; border: none; cursor: pointer; }
+        .order-btn:hover { background-color: #1ebe5d; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>FOODY BITES</h1>
+        <p>Craving Solutions - Creamy, Rich, Irresistible!</p>
+    </header>
+
+    <div class="container">
+        <form id="orderForm" onsubmit="sendToWhatsApp(event)">
+            
+            <h2>INDO CHINESE</h2>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Chowmein</span><div class="item-price">Half: ₹30 | Full: ₹50</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Chowmein" data-price="30/50"></div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Veg Fried Rice</span><div class="item-price">Half: ₹40 | Full: ₹70</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Veg Fried Rice" data-price="40/70"></div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Paneer Chilli</span><div class="item-price">Half: ₹80 | Full: ₹150</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Paneer Chilli" data-price="80/150"></div>
+            </div>
+
+            <h2>NORTH INDIAN</h2>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Paneer Butter Masala</span><div class="item-price">Qtr: ₹110 | Half: ₹205 | Full: ₹390</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Paneer Butter Masala" data-price="110/205/390"></div>
+            </div>
+
+            <h2>SOUTH INDIAN</h2>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Masala Dosa</span><div class="item-price">Full: ₹45</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Masala Dosa" data-price="45"></div>
+            </div>
+
+            <h2>BREADS</h2>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Butter Naan</span><div class="item-price">Full: ₹25</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Butter Naan" data-price="25"></div>
+            </div>
+
+            <h2>NON - VEG</h2>
+            <div class="menu-item">
+                <div class="item-details"><span class="item-name">Chicken Sukka</span><div class="item-price">Qtr: ₹110 | Half: ₹205 | Full: ₹390</div></div>
+                <div>Qty: <input type="number" min="0" value="0" data-item="Chicken Sukka" data-price="110/205/390"></div>
+            </div>
+
+            <button type="submit" class="order-btn">📲 Order via WhatsApp</button>
+        </form>
+    </div>
+
+    <script>
+        function sendToWhatsApp(event) {
+            event.preventDefault();
+            let inputs = document.querySelectorAll('input[type="number"]');
+            let message = "Hello Foody Bites! I would like to order:\n";
+            let totalItems = 0;
+
+            inputs.forEach(input => {
+                let qty = parseInt(input.value);
+                if (qty > 0) {
+                    let itemName = input.getAttribute('data-item');
+                    message += `- ${itemName}: ${qty}\n`;
+                    totalItems += qty;
+                }
+            });
+
+            if (totalItems === 0) {
+                alert("Please select at least one item!");
+                return;
+            }
+
+            let encodedMessage = encodeURIComponent(message);
+            // WhatsApp number from flyer: 8987715159
+            let whatsappUrl = `https://wa.me/918987715159?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
