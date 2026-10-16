@@ -3,12 +3,11 @@ name: Automated Terraform Infra Deployment
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'main.tf'
+  workflow_dispatch:
 
 jobs:
   terraform:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
@@ -24,8 +23,5 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
-
     - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve
