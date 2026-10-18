@@ -1,103 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foody Bites - Craving Solutions</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #fff9f0; margin: 0; padding: 0; color: #333; }
-        header { background-color: #d9534f; color: white; text-align: center; padding: 20px; }
-        header h1 { margin: 0; font-size: 24px; }
-        header p { margin: 5px 0 0; font-style: italic; }
-        .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h2 { color: #d9534f; border-bottom: 2px solid #eee; padding-bottom: 5px; font-size: 18px; margin-top: 20px; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding-bottom: 8px; border-bottom: 1px dashed #ddd; }
-        .item-details { flex-grow: 1; }
-        .item-name { font-weight: bold; }
-        .item-price { color: #e67e22; font-size: 14px; }
-        input[type="number"] { width: 50px; padding: 4px; text-align: center; margin-left: 10px; }
-        .order-btn { display: block; width: 100%; background-color: #25D366; color: white; text-align: center; padding: 15px; font-size: 18px; font-weight: bold; text-decoration: none; border-radius: 5px; margin-top: 20px; border: none; cursor: pointer; }
-        .order-btn:hover { background-color: #1ebe5d; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Foody Bites — Craving Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f5f7; -webkit-tap-highlight-color: transparent; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .animate-slide-up { animation: slideUp 0.22s ease-out; }
+  </style>
 </head>
-<body>
+<body class="pb-32 text-gray-800">
 
-    <header>
-        <h1>FOODY BITES</h1>
-        <p>Craving Solutions - Creamy, Rich, Irresistible!</p>
-    </header>
-
-    <div class="container">
-        <form id="orderForm" onsubmit="sendToWhatsApp(event)">
-            
-            <h2>INDO CHINESE</h2>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Chowmein</span><div class="item-price">Half: ₹30 | Full: ₹50</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Chowmein" data-price="30/50"></div>
-            </div>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Veg Fried Rice</span><div class="item-price">Half: ₹40 | Full: ₹70</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Veg Fried Rice" data-price="40/70"></div>
-            </div>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Paneer Chilli</span><div class="item-price">Half: ₹80 | Full: ₹150</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Paneer Chilli" data-price="80/150"></div>
-            </div>
-
-            <h2>NORTH INDIAN</h2>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Paneer Butter Masala</span><div class="item-price">Qtr: ₹110 | Half: ₹205 | Full: ₹390</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Paneer Butter Masala" data-price="110/205/390"></div>
-            </div>
-
-            <h2>SOUTH INDIAN</h2>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Masala Dosa</span><div class="item-price">Full: ₹45</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Masala Dosa" data-price="45"></div>
-            </div>
-
-            <h2>BREADS</h2>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Butter Naan</span><div class="item-price">Full: ₹25</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Butter Naan" data-price="25"></div>
-            </div>
-
-            <h2>NON - VEG</h2>
-            <div class="menu-item">
-                <div class="item-details"><span class="item-name">Chicken Sukka</span><div class="item-price">Qtr: ₹110 | Half: ₹205 | Full: ₹390</div></div>
-                <div>Qty: <input type="number" min="0" value="0" data-item="Chicken Sukka" data-price="110/205/390"></div>
-            </div>
-
-            <button type="submit" class="order-btn">📲 Order via WhatsApp</button>
-        </form>
+  <!-- Top Sticky Header -->
+  <header class="bg-white sticky top-0 z-30 shadow-sm border-b border-gray-100">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+          🍔
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-extrabold text-lg tracking-tight text-gray-900">FOODY BITES</h1>
+            <span class="bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Open</span>
+          </div>
+          <p class="text-xs text-gray-500 font-medium">Craving Solutions • ⚡ Under 40 Mins</p>
+        </div>
+      </div>
+      <a href="https://wa.me/918987715159" target="_blank" class="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-green-100 transition">
+        <span>💬 Support</span>
+      </a>
     </div>
 
-    <script>
-        function sendToWhatsApp(event) {
-            event.preventDefault();
-            let inputs = document.querySelectorAll('input[type="number"]');
-            let message = "Hello Foody Bites! I would like to order:\n";
-            let totalItems = 0;
+    <!-- Search & Veg Filter -->
+    <div class="max-w-xl mx-auto px-4 pb-2.5 flex gap-2 items-center">
+      <div class="relative flex-1">
+        <input type="text" id="searchInput" oninput="renderMenu()" placeholder="Search 'Chowmein', 'Paneer', 'Naan'..." 
+          class="w-full bg-gray-100 text-sm rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
+        <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+      </div>
+      <button id="vegToggle" onclick="toggleVegOnly()" class="px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-bold flex items-center gap-1.5 transition shrink-0">
+        <span class="w-3.5 h-3.5 border border-green-600 flex items-center justify-center p-0.5 rounded-sm">
+          <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+        </span>
+        Veg Only
+      </button>
+    </div>
 
-            inputs.forEach(input => {
-                let qty = parseInt(input.value);
-                if (qty > 0) {
-                    let itemName = input.getAttribute('data-item');
-                    message += `- ${itemName}: ${qty}\n`;
-                    totalItems += qty;
-                }
-            });
+    <!-- Category Filter Pills -->
+    <div id="categoryTabs" class="max-w-xl mx-auto px-4 py-2 flex space-x-2 overflow-x-auto no-scrollbar border-t border-gray-100"></div>
+  </header>
 
-            if (totalItems === 0) {
-                alert("Please select at least one item!");
-                return;
-            }
+  <!-- Hero Banner -->
+  <div class="max-w-xl mx-auto px-4 mt-4">
+    <div class="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between">
+      <div>
+        <span class="bg-black/20 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">Creamy • Rich • Irresistible</span>
+        <h2 class="font-extrabold text-base sm:text-lg mt-1">Hot & Fresh Homemade Food</h2>
+        <p class="text-xs text-orange-100 font-medium">Hygienic Packing • Guaranteed Delivery Under 40 Mins</p>
+      </div>
+      <div class="text-4xl shrink-0 ml-2">🛵</div>
+    </div>
+  </div>
 
-            let encodedMessage = encodeURIComponent(message);
-            // WhatsApp number from flyer: 8987715159
-            let whatsappUrl = `https://wa.me/918987715159?text=${encodedMessage}`;
-            window.open(whatsappUrl, '_blank');
-        }
-    </script>
+  <!-- Main Menu List -->
+  <main id="menuContainer" class="max-w-xl mx-auto px-4 mt-4 space-y-5"></main>
+
+  <!-- Swiggy-Style Portion Selection Bottom Sheet Modal -->
+  <div id="portionModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this) closePortionModal()">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl animate-slide-up">
+      <div class="p-4 border-b border-gray-100 flex justify-between items-start bg-gray-50">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="modalVegIcon"></span>
+            <h3 id="modalItemName" class="font-extrabold text-base text-gray-900"></h3>
+          </div>
+          <p class="text-xs text-gray-500 mt-0.5">Select your preferred portion size</p>
+        </div>
+        <button onclick="closePortionModal()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-xs font-extrabold uppercase text-gray-500 tracking-wider">Variation</p>
+          <span class="text-[11px] bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded">Required • Select 1</span>
+        </div>
+        <div id="modalPortionOptions" class="space-y-2.5"></div>
+      </div>
+
+      <div class="p-4 border-t border-gray-100 bg-white flex items-center justify-between gap-3">
+        <div class="flex items-center border-2 border-gray-200 rounded-xl px-3 py-2 gap-4 font-extrabold">
+          <button type="button" onclick="changeModalQty(-1)" class="text-orange-600 text-lg leading-none px-1">−</button>
+          <span id="modalQty" class="text-sm w-4 text-center">1</span>
+          <button type="button" onclick="changeModalQty(1)" class="text-orange-600 text-lg leading-none px-1">+</button>
+        </div>
+        <button type="button" onclick="confirmModalAdd()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm">
+          <span>Add Item to Cart</span>
+          <span id="modalTotalBtn">₹0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Cart Bar (Blinkit/Swiggy Style) -->
+  <div id="stickyCartBar" class="fixed bottom-0 inset-x-0 z-40 p-3 hidden">
+    <div class="max-w-xl mx-auto bg-green-600 text-white rounded-2xl p-3.5 shadow-2xl flex items-center justify-between cursor-pointer hover:bg-green-700 transition" onclick="openCartDrawer()">
+      <div class="flex items-center gap-3">
+        <div class="bg-green-800 px-2.5 py-1 rounded-lg font-extrabold text-xs tracking-wide" id="cartCountBadge">0 ITEMS</div>
+        <div>
+          <div class="font-extrabold text-base leading-tight" id="cartTotalBar">₹0</div>
+          <div class="text-[11px] text-green-100 font-medium">Tap to review cart & checkout</div>
+        </div>
+      </div>
+      <div class="font-extrabold text-sm flex items-center gap-1.5 bg-white/15 px-3 py-1.5 rounded-xl">
+        <span>View Cart</span>
+        <span>➔</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-Up Checkout Cart Drawer -->
+  <div id="cartDrawer" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this) closeCartDrawer()">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-slide-up">
+      <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <div>
+          <h3 class="font-extrabold text-base text-gray-900">Your Order Basket 🛒</h3>
+          <p class="text-xs text-gray-500">Guaranteed delivery under 40 minutes</p>
+        </div>
+        <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold">✕</button>
+      </div>
+
+      <div id="cartItemsList" class="p-4 overflow-y-auto space-y-2.5 flex-1"></div>
+
+      <!-- Customer Address & WhatsApp Checkout -->
+      <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-2.5">
+        <input id="custName" type="text" placeholder="Your Name *" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
+        <textarea id="custAddress" rows="2" placeholder="Complete Delivery Address / Landmark *" class="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"></textarea>
+        
+        <div class="flex justify-between items-center pt-1 font-extrabold text-base border-t border-gray-200">
+          <span>To Pay</span>
+          <span id="drawerGrandTotal" class="text-orange-600 text-lg">₹0</span>
+        </div>
+
+        <button type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
+          <span>📲 Send Order on WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MENU_DATA = [
+      // INDO CHINESE
+      { id: "ic1", name: "Chowmein", category: "Indo Chinese", veg: true, desc: "Street-style wok-tossed noodles with crunchy julienned veggies.", portions: [{ label: "Half", price: 30 }, { label: "Full", price: 50 }] },
+      { id: "ic2", name: "Veg Fried Rice", category: "Indo Chinese", veg: true, desc: "Fragrant rice stir-fried with fresh garden vegetables & Indo-Chinese sauces.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic3", name: "Paneer Chilli", category: "Indo Chinese", veg: true, badge: "Popular", desc: "Golden fried paneer cubes tossed in spicy garlic-chilli sauce with capsicum.", portions: [{ label: "Half", price: 80 }, { label: "Full", price: 150 }] },
+      { id: "ic4", name: "Soya Chilli", category: "Indo Chinese", veg: true, desc: "Juicy soya chunks coated in tangy, spicy Indo-Chinese chilli glaze.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic5", name: "Manchurian", category: "Indo Chinese", veg: true, desc: "Crispy mixed-veg dumplings tossed in savoury coriander-garlic Manchurian sauce.", portions: [{ label: "Half", price: 55 }, { label: "Full", price: 100 }] },
+
+      // NORTH INDIAN
+      { id: "ni1", name: "Paneer Butter Masala", category: "North Indian", veg: true, badge: "Best with Naan!", desc: "Creamy, rich & irresistible cottage cheese simmered in buttery tomato-cashew gravy.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] },
+      { id: "ni2", name: "Mix Dal Tadka", category: "North Indian", veg: true, desc: "Homestyle protein-rich yellow & mixed lentils tempered with aromatic spices.", portions: [{ label: "Quarter", price: 50 }, { label: "Half", price: 90 }, { label: "Full", price: 170 }] },
+
+      // SOUTH INDIAN
+      { id: "si1", name: "Masala Dosa", category: "South Indian", veg: true, desc: "Crispy golden rice crepe stuffed with spiced potato mash, served with chutney & sambar.", portions: [{ label: "Full", price: 45 }] },
+      { id: "si2", name: "Butter Masala Dosa", category: "South Indian", veg: true, badge: "Must Try", desc: "Crispy masala dosa roasted generously in rich butter.", portions: [{ label: "Full", price: 60 }] },
+
+      // BREAD & WATER
+      { id: "br1", name: "Roti", category: "Bread", veg: true, desc: "Freshly made whole wheat tawa/tandoori roti.", portions: [{ label: "1 Pc", price: 7 }] },
+      { id: "br2", name: "Butter Roti", category: "Bread", veg: true, desc: "Soft whole wheat roti brushed with butter.", portions: [{ label: "1 Pc", price: 11 }] },
+      { id: "br3", name: "Naan", category: "Bread", veg: true, desc: "Soft and fluffy traditional tandoori naan.", portions: [{ label: "1 Pc", price: 20 }] },
+      { id: "br4", name: "Butter Naan", category: "Bread", veg: true, badge: "Bestseller", desc: "Tandoori naan layered with melted butter — pairs best with Paneer Butter Masala!", portions: [{ label: "1 Pc", price: 25 }] },
+      { id: "br5", name: "Drinking Water", category: "Bread", veg: true, desc: "Chilled packaged drinking water.", portions: [{ label: "1 Bottle", price: 15 }] },
+
+      // NON-VEG
+      { id: "nv1", name: "Chicken Sukka", category: "Non-Veg", veg: false, badge: "Spicy & Rich", desc: "Tender chicken pieces slow-roasted in rich homemade masala.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] }
+    ];
+
+    const CATEGORIES = ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"];
+    let activeCategory = "All";
+    let vegOnly = false;
+    let cart = {};
+
+    let currentModalItem = null;
+    let selectedPortionIndex = 0;
+    let modalQuantity = 1;
+
+    function vegBadgeHTML(isVeg) {
+      const border = isVeg ? "border-green-600" : "border-red-600";
+      const dot = isVeg ? "bg-green-600" : "bg-red-600";
+      return `<span class="inline-flex w-4 h-4 border ${border} items-center justify-center p-0.5 rounded-sm shrink-0">
+                <span class="w-2 h-2 ${dot} rounded-full"></span>
+              </span>`;
+    }
+
+    function renderCategories() {
+      document.getElementById("categoryTabs").innerHTML = CATEGORIES.map(cat => `
+        <button onclick="setCategory('${cat}')" 
+          class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ${
+            activeCategory === cat ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }">${cat}</button>
+      `).join("");
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategories();
+      renderMenu();
+    }
+
+    function toggleVegOnly() {
+      vegOnly = !vegOnly;
+      const btn = document.getElementById("vegToggle");
+      btn.classList.toggle("bg-green-50", vegOnly);
+      btn.classList.toggle("border-green-600", vegOnly);
+      btn.classList.toggle("text-green-800", vegOnly);
+      renderMenu();
+    }
+
+    function getItemTotalQty(itemId) {
+      return Object.values(cart).filter(e => e.item.id === itemId).reduce((sum, e) => sum + e.qty, 0);
+    }
+
+    function renderMenu() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const container = document.getElementById("menuContainer");
+
+      const filtered = MENU_DATA.filter(item => {
+        if (vegOnly && !item.veg) return false;
+        if (activeCategory !== "All" && item.category !== activeCategory) return false;
+        if (q && !item.name.toLowerCase().includes(q) && !item.category.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const grouped = {};
+      filtered.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      if (Object.keys(grouped).length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-gray-400 font-bold text-sm">No dishes found matching your search.</div>`;
+        return;
+      }
+
+      container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
+        <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">
+            <h2 class="font-extrabold text-base text-gray-900">${cat}</h2>
+            <span class="text-xs font-bold text-gray-400">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
+          </div>
+          <div class="divide-y divide-gray-100">
+            ${items.map(item => {
+              const multi = item.portions.length > 1;
+              const qtyInCart = getItemTotalQty(item.id);
+              const singleKey = `${item.id}_${item.portions[0].label}`;
+
+              return `
+                <div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3">
+                  <div class="flex-1 pr-2">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      ${vegBadgeHTML(item.veg)}
+                      <h3 class="font-extrabold text-gray-900 text-sm sm:text-base">${item.name}</h3>
+                      ${item.badge ? `<span class="bg-orange-100 text-orange-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md">${item.badge}</span>` : ''}
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                      ${item.portions.map(p => `
+                        <span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-md font-bold">
+                          ${p.label}: <span class="text-orange-600">₹${p.price}</span>
+                        </span>
+                      `).join("")}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">${item.desc}</p>
+                  </div>
+
+                  <div class="flex flex-col items-center shrink-0">
+                    ${(!multi && qtyInCart > 0) ? `
+                      <div class="w-24 py-1.5 px-2 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700">
+                        <button onclick="changeCartKeyQty('${singleKey}', -1)" class="px-1 text-base leading-none">−</button>
+                        <span>${qtyInCart}</span>
+                        <button onclick="changeCartKeyQty('${singleKey}', 1)" class="px-1 text-base leading-none">+</button>
+                      </div>
+                    ` : `
+                      <button onclick="handleAddClick('${item.id}')" 
+                        class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 shadow-sm transition ${
+                          qtyInCart > 0 
+                            ? 'bg-orange-50 border-orange-500 text-orange-600' 
+                            : 'bg-white border-gray-200 text-green-600 hover:border-green-600'
+                        }">
+                        ${qtyInCart > 0 ? `Added (${qtyInCart}) +` : 'ADD +'}
+                      </button>
+                    `}
+                    ${multi ? `<span class="text-[10px] text-gray-400 font-semibold mt-1">Customisable</span>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    function handleAddClick(itemId) {
+      const item = MENU_DATA.find(i => i.id === itemId);
+      if (!item) return;
+      if (item.portions.length === 1) {
+        addToCart(item, item.portions[0], 1);
+      } else {
+        openPortionModal(item);
+      }
+    }
+
+    function openPortionModal(item) {
+      currentModalItem = item;
+      selectedPortionIndex = 0;
+      modalQuantity = 1;
+      document.getElementById("modalVegIcon").innerHTML = vegBadgeHTML(item.veg);
+      document.getElementById("modalItemName").innerText = item.name;
+      document.getElementById("modalQty").innerText = modalQuantity;
+      renderModalPortions();
+      document.getElementById("portionModal").classList.remove("hidden");
+    }
+
+    function renderModalPortions() {
+      document.getElementById("modalPortionOptions").innerHTML = currentModalItem.portions.map((p, idx) => {
+        const active = idx === selectedPortionIndex;
+        return `
+          <div onclick="selectPortion(${idx})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
+            active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50'
+          }">
+            <div class="flex items-center gap-3">
+              <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? 'border-orange-600' : 'border-gray-300'}">
+                ${active ? '<span class="w-2.5 h-2.5 rounded-full bg-orange-600"></span>' : ''}
+              </span>
+              <span class="font-bold text-sm text-gray-900">${p.label}</span>
+            </div>
+            <span class="font-extrabold text-sm text-gray-900">₹${p.price}</span>
+          </div>
+        `;
+      }).join("");
+
+      const total = currentModalItem.portions[selectedPortionIndex].price * modalQuantity;
+      document.getElementById("modalTotalBtn").innerText = `₹${total}`;
+    }
+
+    function selectPortion(idx) {
+      selectedPortionIndex = idx;
+      renderModalPortions();
+    }
+
+    function changeModalQty(delta) {
+      modalQuantity = Math.max(1, modalQuantity + delta);
+      document.getElementById("modalQty").innerText = modalQuantity;
+      renderModalPortions();
+    }
+
+    function confirmModalAdd() {
+      addToCart(currentModalItem, currentModalItem.portions[selectedPortionIndex], modalQuantity);
+      closePortionModal();
+    }
+
+    function closePortionModal() {
+      document.getElementById("portionModal").classList.add("hidden");
+    }
+
+    function addToCart(item, portion, qty) {
+      const key = `${item.id}_${portion.label}`;
+      if (!cart[key]) cart[key] = { item, portion, qty: 0 };
+      cart[key].qty += qty;
+      if (cart[key].qty <= 0) delete cart[key];
+      updateCartUI();
+      renderMenu();
+    }
+
+    function changeCartKeyQty(key, delta) {
+      if (!cart[key]) return;
+      cart[key].qty += delta;
+      if (cart[key].qty <= 0) delete cart[key];
+      updateCartUI();
+      renderMenu();
+      renderCartDrawerItems();
+    }
+
+    function updateCartUI() {
+      const entries = Object.values(cart);
+      const count = entries.reduce((s, e) => s + e.qty, 0);
+      const total = entries.reduce((s, e) => s + e.qty * e.portion.price, 0);
+
+      const bar = document.getElementById("stickyCartBar");
+      if (count > 0) {
+        bar.classList.remove("hidden");
+        document.getElementById("cartCountBadge").innerText = `${count} ITEM${count > 1 ? 'S' : ''}`;
+        document.getElementById("cartTotalBar").innerText = `₹${total}`;
+      } else {
+        bar.classList.add("hidden");
+        closeCartDrawer();
+      }
+    }
+
+    function openCartDrawer() {
+      renderCartDrawerItems();
+      document.getElementById("cartDrawer").classList.remove("hidden");
+    }
+
+    function closeCartDrawer() {
+      document.getElementById("cartDrawer").classList.add("hidden");
+    }
+
+    function renderCartDrawerItems() {
+      const entries = Object.entries(cart);
+      let total = 0;
+      document.getElementById("cartItemsList").innerHTML = entries.map(([key, e]) => {
+        const sub = e.qty * e.portion.price;
+        total += sub;
+        return `
+          <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200/80">
+            <div>
+              <div class="flex items-center gap-1.5">
+                ${vegBadgeHTML(e.item.veg)}
+                <span class="font-bold text-sm text-gray-900">${e.item.name}</span>
+              </div>
+              <span class="text-[11px] text-orange-700 font-bold bg-orange-100 px-2 py-0.5 rounded mt-1 inline-block">
+                Portion: ${e.portion.label} (₹${e.portion.price})
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">
+                <button onclick="changeCartKeyQty('${key}', -1)" class="text-green-700 text-sm">−</button>
+                <span>${e.qty}</span>
+                <button onclick="changeCartKeyQty('${key}', 1)" class="text-green-700 text-sm">+</button>
+              </div>
+              <div class="font-extrabold text-sm w-12 text-right">₹${sub}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById("drawerGrandTotal").innerText = `₹${total}`;
+    }
+
+    function checkoutWhatsApp() {
+      const name = document.getElementById("custName").value.trim();
+      const address = document.getElementById("custAddress").value.trim();
+      if (!name || !address) {
+        alert("Please enter your Name and Delivery Address!");
+        return;
+      }
+
+      const entries = Object.values(cart);
+      let total = 0;
+      const lines = entries.map((e, idx) => {
+        const sub = e.qty * e.portion.price;
+        total += sub;
+        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${sub}`;
+      }).join("\n");
+
+      const text = `*🍔 NEW ORDER — FOODY BITES*\n\n` +
+                   `*👤 Name:* ${name}\n` +
+                   `*📍 Address:* ${address}\n\n` +
+                   `*🧾 Order Summary:*\n${lines}\n\n` +
+                   `*💰 Grand Total: ₹${total}*\n` +
+                   `------------------------\n` +
+                   `⚡ _Please confirm my order!_`;
+
+      window.open(`https://wa.me/918987715159?text=${encodeURIComponent(text)}`, "_blank");
+    }
+
+    renderCategories();
+    renderMenu();
+  </script>
 </body>
 </html>

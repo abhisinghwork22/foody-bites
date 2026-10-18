@@ -23,7 +23,7 @@ resource "google_project_service" "apis" {
     "artifactregistry.googleapis.com",
     "cloudbuild.googleapis.com"
   ])
-  
+
   service            = each.key
   disable_on_destroy = false
 }
@@ -41,4 +41,13 @@ resource "google_artifact_registry_repository" "foody_repo" {
   description   = "Foody Bites Docker repository managed by Terraform"
   format        = "DOCKER"
   depends_on    = [time_sleep.wait_for_apis]
+
+  # DevOps Best Practice: Keep only the 5 most recent images to stay in Free Tier
+  cleanup_policies {
+    id     = "keep-minimum-versions"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 5
+    }
+  }
 }
