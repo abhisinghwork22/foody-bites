@@ -1,8 +1,10 @@
-# Use a lightweight Nginx web server image
 FROM nginx:alpine
 
-# Copy our Foody Bites HTML file into Nginx's public web directory
-COPY index.html /usr/share/nginx/html/index.html
+# Copy your website files into Nginx's public folder
+COPY . /usr/share/nginx/html
 
-# Expose port 80 so web traffic can reach the container
-EXPOSE 80
+# Copy our custom Nginx config that listens on port 8080
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 8080 to match Cloud Run requirements
+EXPOSE 8080
