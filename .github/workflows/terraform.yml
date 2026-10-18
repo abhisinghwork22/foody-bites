@@ -3,6 +3,8 @@ name: Automated Terraform Infra Deployment
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'main.tf'
   workflow_dispatch:
 
 jobs:
