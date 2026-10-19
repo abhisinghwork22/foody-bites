@@ -221,9 +221,7 @@
       }).formatToParts(now);
 
       const hourPart = istTimeParts.find(p => p.type === 'hour');
-      const minutePart = istTimeParts.find(p => p.type === 'minute');
       const istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
-      const istMin = parseInt(minutePart ? minutePart.value : 0, 10);
 
       // Shop is open from 10:00 (inclusive) up to 22:00 (10:00 PM)
       isShopOpen = (istHour >= 10 && istHour < 22);
@@ -248,17 +246,17 @@
     function vegBadgeHTML(isVeg) {
       const border = isVeg ? "border-green-600" : "border-red-600";
       const dot = isVeg ? "bg-green-600" : "bg-red-600";
-      return `<span class="inline-flex w-4 h-4 border ${} items-center justify-center p-0.5 rounded-sm shrink-0">
-                <span class="w-2 h-2 ${} rounded-full"></span>
+      return `<span class="inline-flex w-4 h-4 border ${border} items-center justify-center p-0.5 rounded-sm shrink-0">
+                <span class="w-2 h-2 ${dot} rounded-full"></span>
               </span>`;
     }
 
     function renderCategories() {
       document.getElementById("categoryTabs").innerHTML = CATEGORIES.map(cat => `
-        <button onclick="setCategory('${}')" 
+        <button onclick="setCategory('${cat}')" 
           class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ${
             activeCategory === cat ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }">${}</button>
+          }">${cat}</button>
       `).join("");
     }
 
@@ -326,7 +324,7 @@
       container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
         <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">
-            <h2 class="font-extrabold text-base text-gray-900">${}</h2>
+            <h2 class="font-extrabold text-base text-gray-900">${cat}</h2>
             <span class="text-xs font-bold text-gray-400">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
           </div>
           <div class="divide-y divide-gray-100">
@@ -356,7 +354,7 @@
                     ${qtyInCart > 0 ? `
                       <div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">
                         <button onclick="handleMenuMinus('${item.id}')" class="px-1 text-base leading-none hover:text-red-600 transition">−</button>
-                        <span>${}</span>
+                        <span>${qtyInCart}</span>
                         <button onclick="handleAddClick('${item.id}')" class="px-1 text-base leading-none hover:text-green-900 transition">+</button>
                       </div>
                     ` : `
@@ -388,7 +386,6 @@
     // 3. PORTION MODAL WITH ABILITY TO DECREASE TO 0 (REMOVE) OR UPDATE
     function openPortionModal(item) {
       currentModalItem = item;
-      // Default to first portion that is already in cart, or index 0
       const existingIdx = item.portions.findIndex(p => cart[`${item.id}_${p.label}`]);
       selectedPortionIndex = existingIdx !== -1 ? existingIdx : 0;
 
@@ -414,7 +411,7 @@
         const inCartQty = cart[pKey] ? cart[pKey].qty : 0;
 
         return `
-          <div onclick="selectPortion(${})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
+          <div onclick="selectPortion(${idx})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
             active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50'
           }">
             <div class="flex items-center gap-3">
@@ -458,7 +455,6 @@
       const key = `${currentModalItem.id}_${portion.label}`;
       const existingQty = cart[key] ? cart[key].qty : 0;
 
-      // If item is already in cart, allow going down to 0 so user can remove it
       const minAllowed = existingQty > 0 ? 0 : 1;
       modalQuantity = Math.max(minAllowed, modalQuantity + delta);
       renderModalPortions();
@@ -544,11 +540,11 @@
             </div>
             <div class="flex items-center gap-3">
               <div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">
-                <button onclick="changeCartKeyQty('${}', -1)" class="text-green-700 text-sm">−</button>
+                <button onclick="changeCartKeyQty('${key}', -1)" class="text-green-700 text-sm">−</button>
                 <span>${e.qty}</span>
-                <button onclick="changeCartKeyQty('${}', 1)" class="text-green-700 text-sm">+</button>
+                <button onclick="changeCartKeyQty('${key}', 1)" class="text-green-700 text-sm">+</button>
               </div>
-              <div class="font-extrabold text-sm w-12 text-right">₹${}</div>
+              <div class="font-extrabold text-sm w-12 text-right">₹${sub}</div>
             </div>
           </div>
         `;
@@ -575,7 +571,7 @@
       const lines = entries.map((e, idx) => {
         const sub = e.qty * e.portion.price;
         total += sub;
-        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${}`;
+        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${sub}`;
       }).join("\n");
 
       const text = `*🍔 NEW ORDER — FOODY BITES*\n\n` +
