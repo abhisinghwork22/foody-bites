@@ -26,9 +26,12 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-extrabold text-lg tracking-tight text-gray-900">FOODY BITES</h1>
-            <span class="bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Open</span>
+            <!-- Dynamic Open/Closed Badge (10 AM - 10 PM IST) -->
+            <span id="storeStatusBadge" class="bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+              Checking...
+            </span>
           </div>
-          <p class="text-xs text-gray-500 font-medium">Craving Solutions • ⚡ Under 40 Mins</p>
+          <p id="storeTimingSubtext" class="text-xs text-gray-500 font-medium">Craving Solutions • ⚡ 10 AM – 10 PM IST</p>
         </div>
       </div>
       <a href="https://wa.me/918987715159" target="_blank" class="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-green-100 transition">
@@ -43,17 +46,32 @@
           class="w-full bg-gray-100 text-sm rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
         <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
       </div>
-      <button id="vegToggle" onclick="toggleVegOnly()" class="px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-bold flex items-center gap-1.5 transition shrink-0">
-        <span class="w-3.5 h-3.5 border border-green-600 flex items-center justify-center p-0.5 rounded-sm">
-          <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+      <!-- Enhanced Veg Only Toggle Button -->
+      <button id="vegToggle" onclick="toggleVegOnly()" class="px-3.5 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-700 text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0">
+        <span id="vegToggleIcon" class="w-4 h-4 border-2 border-green-600 bg-white flex items-center justify-center p-0.5 rounded-sm">
+          <span class="w-2 h-2 bg-green-600 rounded-full"></span>
         </span>
-        Veg Only
+        <span id="vegToggleText">Veg Only</span>
       </button>
     </div>
 
     <!-- Category Filter Pills -->
     <div id="categoryTabs" class="max-w-xl mx-auto px-4 py-2 flex space-x-2 overflow-x-auto no-scrollbar border-t border-gray-100"></div>
   </header>
+
+  <!-- Store Closed Banner (Shown only outside 10 AM - 10 PM IST) -->
+  <div id="closedBanner" class="max-w-xl mx-auto px-4 mt-3 hidden">
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-3.5 flex items-center justify-between text-red-800">
+      <div class="flex items-center gap-2.5">
+        <span class="text-xl">🕙</span>
+        <div>
+          <p class="font-extrabold text-xs sm:text-sm">We are currently closed!</p>
+          <p class="text-[11px] text-red-600 font-medium">Ordering hours: 10:00 AM to 10:00 PM IST</p>
+        </div>
+      </div>
+      <span class="text-[10px] font-extrabold uppercase bg-red-100 text-red-700 px-2.5 py-1 rounded-lg">Closed</span>
+    </div>
+  </div>
 
   <!-- Hero Banner -->
   <div class="max-w-xl mx-auto px-4 mt-4">
@@ -94,12 +112,12 @@
 
       <div class="p-4 border-t border-gray-100 bg-white flex items-center justify-between gap-3">
         <div class="flex items-center border-2 border-gray-200 rounded-xl px-3 py-2 gap-4 font-extrabold">
-          <button type="button" onclick="changeModalQty(-1)" class="text-orange-600 text-lg leading-none px-1">−</button>
-          <span id="modalQty" class="text-sm w-4 text-center">1</span>
-          <button type="button" onclick="changeModalQty(1)" class="text-orange-600 text-lg leading-none px-1">+</button>
+          <button type="button" onclick="changeModalQty(-1)" class="text-orange-600 text-lg leading-none px-1 select-none">−</button>
+          <span id="modalQty" class="text-sm w-5 text-center">1</span>
+          <button type="button" onclick="changeModalQty(1)" class="text-orange-600 text-lg leading-none px-1 select-none">+</button>
         </div>
-        <button type="button" onclick="confirmModalAdd()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm">
-          <span>Add Item to Cart</span>
+        <button id="modalConfirmBtn" type="button" onclick="confirmModalAdd()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition">
+          <span id="modalConfirmText">Add Item to Cart</span>
           <span id="modalTotalBtn">₹0</span>
         </button>
       </div>
@@ -146,7 +164,7 @@
           <span id="drawerGrandTotal" class="text-orange-600 text-lg">₹0</span>
         </div>
 
-        <button type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
+        <button id="whatsappCheckoutBtn" type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
           <span>📲 Send Order on WhatsApp</span>
         </button>
       </div>
@@ -185,25 +203,62 @@
     let activeCategory = "All";
     let vegOnly = false;
     let cart = {};
+    let isShopOpen = true;
 
     let currentModalItem = null;
     let selectedPortionIndex = 0;
     let modalQuantity = 1;
 
+    // 1. CHECK SHOP STATUS IN INDIAN STANDARD TIME (10:00 AM to 10:00 PM IST)
+    function checkStoreStatusIST() {
+      const now = new Date();
+      // Convert current time to IST (Asia/Kolkata)
+      const istTimeParts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      }).formatToParts(now);
+
+      const hourPart = istTimeParts.find(p => p.type === 'hour');
+      const minutePart = istTimeParts.find(p => p.type === 'minute');
+      const istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
+      const istMin = parseInt(minutePart ? minutePart.value : 0, 10);
+
+      // Shop is open from 10:00 (inclusive) up to 22:00 (10:00 PM)
+      isShopOpen = (istHour >= 10 && istHour < 22);
+
+      const badge = document.getElementById("storeStatusBadge");
+      const closedBanner = document.getElementById("closedBanner");
+      const subtext = document.getElementById("storeTimingSubtext");
+
+      if (isShopOpen) {
+        badge.className = "bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+        badge.innerText = "Open";
+        subtext.innerText = "Craving Solutions • ⚡ Under 40 Mins";
+        closedBanner.classList.add("hidden");
+      } else {
+        badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+        badge.innerText = "Closed";
+        subtext.innerText = "Opens 10:00 AM – 10:00 PM IST";
+        closedBanner.classList.remove("hidden");
+      }
+    }
+
     function vegBadgeHTML(isVeg) {
       const border = isVeg ? "border-green-600" : "border-red-600";
       const dot = isVeg ? "bg-green-600" : "bg-red-600";
-      return `<span class="inline-flex w-4 h-4 border ${border} items-center justify-center p-0.5 rounded-sm shrink-0">
-                <span class="w-2 h-2 ${dot} rounded-full"></span>
+      return `<span class="inline-flex w-4 h-4 border ${} items-center justify-center p-0.5 rounded-sm shrink-0">
+                <span class="w-2 h-2 ${} rounded-full"></span>
               </span>`;
     }
 
     function renderCategories() {
       document.getElementById("categoryTabs").innerHTML = CATEGORIES.map(cat => `
-        <button onclick="setCategory('${cat}')" 
+        <button onclick="setCategory('${}')" 
           class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ${
             activeCategory === cat ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }">${cat}</button>
+          }">${}</button>
       `).join("");
     }
 
@@ -213,17 +268,37 @@
       renderMenu();
     }
 
+    // 2. CLEAR & BOLD VEG ONLY FILTER UI
     function toggleVegOnly() {
       vegOnly = !vegOnly;
       const btn = document.getElementById("vegToggle");
-      btn.classList.toggle("bg-green-50", vegOnly);
-      btn.classList.toggle("border-green-600", vegOnly);
-      btn.classList.toggle("text-green-800", vegOnly);
+      const text = document.getElementById("vegToggleText");
+
+      if (vegOnly) {
+        btn.className = "px-3.5 py-2.5 rounded-xl border-2 border-green-700 bg-green-600 text-white text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0 shadow-md shadow-green-600/25";
+        text.innerText = "Veg Only ✓";
+      } else {
+        btn.className = "px-3.5 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-700 text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0";
+        text.innerText = "Veg Only";
+      }
       renderMenu();
     }
 
     function getItemTotalQty(itemId) {
       return Object.values(cart).filter(e => e.item.id === itemId).reduce((sum, e) => sum + e.qty, 0);
+    }
+
+    // Helper for decreasing an item directly from the main menu card
+    function handleMenuMinus(itemId) {
+      const matchingKeys = Object.keys(cart).filter(k => cart[k].item.id === itemId);
+      if (matchingKeys.length === 1) {
+        // Decrease directly if only 1 portion variation is in cart
+        changeCartKeyQty(matchingKeys[0], -1);
+      } else if (matchingKeys.length > 1) {
+        // If both Half & Full are in cart, open modal so user can pick which one to reduce
+        const item = MENU_DATA.find(i => i.id === itemId);
+        if (item) openPortionModal(item);
+      }
     }
 
     function renderMenu() {
@@ -251,14 +326,13 @@
       container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
         <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">
-            <h2 class="font-extrabold text-base text-gray-900">${cat}</h2>
+            <h2 class="font-extrabold text-base text-gray-900">${}</h2>
             <span class="text-xs font-bold text-gray-400">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
           </div>
           <div class="divide-y divide-gray-100">
             ${items.map(item => {
               const multi = item.portions.length > 1;
               const qtyInCart = getItemTotalQty(item.id);
-              const singleKey = `${item.id}_${item.portions[0].label}`;
 
               return `
                 <div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3">
@@ -279,20 +353,16 @@
                   </div>
 
                   <div class="flex flex-col items-center shrink-0">
-                    ${(!multi && qtyInCart > 0) ? `
-                      <div class="w-24 py-1.5 px-2 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700">
-                        <button onclick="changeCartKeyQty('${singleKey}', -1)" class="px-1 text-base leading-none">−</button>
-                        <span>${qtyInCart}</span>
-                        <button onclick="changeCartKeyQty('${singleKey}', 1)" class="px-1 text-base leading-none">+</button>
+                    ${qtyInCart > 0 ? `
+                      <div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">
+                        <button onclick="handleMenuMinus('${item.id}')" class="px-1 text-base leading-none hover:text-red-600 transition">−</button>
+                        <span>${}</span>
+                        <button onclick="handleAddClick('${item.id}')" class="px-1 text-base leading-none hover:text-green-900 transition">+</button>
                       </div>
                     ` : `
                       <button onclick="handleAddClick('${item.id}')" 
-                        class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 shadow-sm transition ${
-                          qtyInCart > 0 
-                            ? 'bg-orange-50 border-orange-500 text-orange-600' 
-                            : 'bg-white border-gray-200 text-green-600 hover:border-green-600'
-                        }">
-                        ${qtyInCart > 0 ? `Added (${qtyInCart}) +` : 'ADD +'}
+                        class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 bg-white border-gray-200 text-green-600 hover:border-green-600 shadow-sm transition">
+                        ADD +
                       </button>
                     `}
                     ${multi ? `<span class="text-[10px] text-gray-400 font-semibold mt-1">Customisable</span>` : ''}
@@ -315,22 +385,36 @@
       }
     }
 
+    // 3. PORTION MODAL WITH ABILITY TO DECREASE TO 0 (REMOVE) OR UPDATE
     function openPortionModal(item) {
       currentModalItem = item;
-      selectedPortionIndex = 0;
-      modalQuantity = 1;
+      // Default to first portion that is already in cart, or index 0
+      const existingIdx = item.portions.findIndex(p => cart[`${item.id}_${p.label}`]);
+      selectedPortionIndex = existingIdx !== -1 ? existingIdx : 0;
+
+      const key = `${item.id}_${item.portions[selectedPortionIndex].label}`;
+      modalQuantity = cart[key] ? cart[key].qty : 1;
+
       document.getElementById("modalVegIcon").innerHTML = vegBadgeHTML(item.veg);
       document.getElementById("modalItemName").innerText = item.name;
-      document.getElementById("modalQty").innerText = modalQuantity;
       renderModalPortions();
       document.getElementById("portionModal").classList.remove("hidden");
     }
 
     function renderModalPortions() {
+      const portion = currentModalItem.portions[selectedPortionIndex];
+      const key = `${currentModalItem.id}_${portion.label}`;
+      const existingQty = cart[key] ? cart[key].qty : 0;
+
+      document.getElementById("modalQty").innerText = modalQuantity;
+
       document.getElementById("modalPortionOptions").innerHTML = currentModalItem.portions.map((p, idx) => {
         const active = idx === selectedPortionIndex;
+        const pKey = `${currentModalItem.id}_${p.label}`;
+        const inCartQty = cart[pKey] ? cart[pKey].qty : 0;
+
         return `
-          <div onclick="selectPortion(${idx})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
+          <div onclick="selectPortion(${})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
             active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50'
           }">
             <div class="flex items-center gap-3">
@@ -338,29 +422,59 @@
                 ${active ? '<span class="w-2.5 h-2.5 rounded-full bg-orange-600"></span>' : ''}
               </span>
               <span class="font-bold text-sm text-gray-900">${p.label}</span>
+              ${inCartQty > 0 ? `<span class="text-[10px] bg-green-100 text-green-700 font-extrabold px-2 py-0.5 rounded-full">${inCartQty} in cart</span>` : ''}
             </div>
             <span class="font-extrabold text-sm text-gray-900">₹${p.price}</span>
           </div>
         `;
       }).join("");
 
-      const total = currentModalItem.portions[selectedPortionIndex].price * modalQuantity;
-      document.getElementById("modalTotalBtn").innerText = `₹${total}`;
+      const confirmBtn = document.getElementById("modalConfirmBtn");
+      const confirmText = document.getElementById("modalConfirmText");
+      const totalSpan = document.getElementById("modalTotalBtn");
+
+      if (modalQuantity === 0 && existingQty > 0) {
+        confirmBtn.className = "flex-1 bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition";
+        confirmText.innerText = "Remove from Cart";
+        totalSpan.innerText = "₹0";
+      } else {
+        confirmBtn.className = "flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition";
+        confirmText.innerText = existingQty > 0 ? "Update Cart" : "Add Item to Cart";
+        const total = portion.price * modalQuantity;
+        totalSpan.innerText = `₹${total}`;
+      }
     }
 
     function selectPortion(idx) {
       selectedPortionIndex = idx;
+      const portion = currentModalItem.portions[selectedPortionIndex];
+      const key = `${currentModalItem.id}_${portion.label}`;
+      modalQuantity = cart[key] ? cart[key].qty : 1;
       renderModalPortions();
     }
 
     function changeModalQty(delta) {
-      modalQuantity = Math.max(1, modalQuantity + delta);
-      document.getElementById("modalQty").innerText = modalQuantity;
+      const portion = currentModalItem.portions[selectedPortionIndex];
+      const key = `${currentModalItem.id}_${portion.label}`;
+      const existingQty = cart[key] ? cart[key].qty : 0;
+
+      // If item is already in cart, allow going down to 0 so user can remove it
+      const minAllowed = existingQty > 0 ? 0 : 1;
+      modalQuantity = Math.max(minAllowed, modalQuantity + delta);
       renderModalPortions();
     }
 
     function confirmModalAdd() {
-      addToCart(currentModalItem, currentModalItem.portions[selectedPortionIndex], modalQuantity);
+      const portion = currentModalItem.portions[selectedPortionIndex];
+      const key = `${currentModalItem.id}_${portion.label}`;
+
+      if (modalQuantity <= 0) {
+        delete cart[key];
+      } else {
+        cart[key] = { item: currentModalItem, portion, qty: modalQuantity };
+      }
+      updateCartUI();
+      renderMenu();
       closePortionModal();
     }
 
@@ -430,11 +544,11 @@
             </div>
             <div class="flex items-center gap-3">
               <div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">
-                <button onclick="changeCartKeyQty('${key}', -1)" class="text-green-700 text-sm">−</button>
+                <button onclick="changeCartKeyQty('${}', -1)" class="text-green-700 text-sm">−</button>
                 <span>${e.qty}</span>
-                <button onclick="changeCartKeyQty('${key}', 1)" class="text-green-700 text-sm">+</button>
+                <button onclick="changeCartKeyQty('${}', 1)" class="text-green-700 text-sm">+</button>
               </div>
-              <div class="font-extrabold text-sm w-12 text-right">₹${sub}</div>
+              <div class="font-extrabold text-sm w-12 text-right">₹${}</div>
             </div>
           </div>
         `;
@@ -443,6 +557,12 @@
     }
 
     function checkoutWhatsApp() {
+      checkStoreStatusIST();
+      if (!isShopOpen) {
+        alert("Sorry, Foody Bites is currently CLOSED. Ordering hours are 10:00 AM to 10:00 PM IST.");
+        return;
+      }
+
       const name = document.getElementById("custName").value.trim();
       const address = document.getElementById("custAddress").value.trim();
       if (!name || !address) {
@@ -455,7 +575,7 @@
       const lines = entries.map((e, idx) => {
         const sub = e.qty * e.portion.price;
         total += sub;
-        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${sub}`;
+        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${}`;
       }).join("\n");
 
       const text = `*🍔 NEW ORDER — FOODY BITES*\n\n` +
@@ -469,6 +589,9 @@
       window.open(`https://wa.me/918987715159?text=${encodeURIComponent(text)}`, "_blank");
     }
 
+    // Initialize App
+    checkStoreStatusIST();
+    setInterval(checkStoreStatusIST, 60000); // Re-check IST time every minute
     renderCategories();
     renderMenu();
   </script>
