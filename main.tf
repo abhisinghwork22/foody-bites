@@ -1,5 +1,12 @@
 terraform {
   required_version = ">= 1.0"
+
+  # Tells Terraform to store its memory in your GCS bucket!
+  backend "gcs" {
+    bucket = "abhishek-test-452001-tfstate"
+    prefix = "foody-bites/prod"
+  }
+
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -17,24 +24,24 @@ provider "google" {
 }
 
 # ==========================================
-# VARIABLES (Update the defaults below!)
+# VARIABLES
 # ==========================================
 variable "domain_name" {
   description = "Your custom domain name (without www)"
   type        = string
-  default     = "foodybites.net" # <--- CHANGE THIS to your actual domain
+  default     = "foodybites.net"
 }
 
 variable "dns_zone_name" {
   description = "The Zone Name in Cloud DNS (not the domain name)"
   type        = string
-  default     = "foodybites-net" # <--- CHANGE THIS to your Cloud DNS Zone Name
+  default     = "foodybites-net"
 }
 
 # Automatically fetch your current GCP Project ID
 data "google_project" "current" {}
 
-# 1. Enable required GCP APIs declaratively (Added dns.googleapis.com)
+# 1. Enable required GCP APIs declaratively
 resource "google_project_service" "apis" {
   for_each = toset([
     "run.googleapis.com",
@@ -80,7 +87,7 @@ data "google_dns_managed_zone" "domain_zone" {
   depends_on = [time_sleep.wait_for_apis]
 }
 
-# Map Root Domain (e.g., foodybites.com) to Cloud Run Service
+# Map Root Domain (foodybites.net) to Cloud Run Service
 resource "google_cloud_run_domain_mapping" "root_domain" {
   location = "us-central1"
   name     = var.domain_name
@@ -96,7 +103,7 @@ resource "google_cloud_run_domain_mapping" "root_domain" {
   depends_on = [time_sleep.wait_for_apis]
 }
 
-# Map WWW Subdomain (e.g., www.foodybites.com) to Cloud Run Service
+# Map WWW Subdomain (www.foodybites.net) to Cloud Run Service
 resource "google_cloud_run_domain_mapping" "www_domain" {
   location = "us-central1"
   name     = "www.${var.domain_name}"
@@ -150,4 +157,37 @@ resource "google_dns_record_set" "www_cname" {
   ttl          = 300
 
   rrdatas = ["ghs.googlehosted.com."]
+}
+
+# ==========================================
+# 5. DECLARATIVE IMPORTS (Sync existing live resources into GCS State)
+# ==========================================
+import {
+  id = "projects/abhishek-test-452001/locations/us-central1/repositories/foody-repo"
+  to = google_artifact_registry_repository.foody_repo
+}
+
+import {
+  id = "locations/us-central1/namespaces/abhishek-test-452001/domainmappings/foodybites.net"
+  to = google_cloud_run_domain_mapping.root_domain
+}
+
+import {
+  id = "locations/us-central1/namespaces/abhishek-test-452001/domainmappings/www.foodybites.net"
+  to = google_cloud_run_domain_mapping.www_domain
+}
+
+import {
+  id = "projects/abhishek-test-452001/managedZones/foodybites-net/rrsets/foodybites.net./A"
+  to = google_dns_record_set.root_a
+}
+
+import {
+  id = "projects/abhishek-test-452001/managedZones/foodybites-net/rrsets/foodybites.net./AAAA"
+  to = google_dns_record_set.root_aaaa
+}
+
+import {
+  id = "projects/abhishek-test-452001/managedZones/foodybites-net/rrsets/www.foodybites.net./CNAME"
+  to = google_dns_record_set.www_cname
 }
