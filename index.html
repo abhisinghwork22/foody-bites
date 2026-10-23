@@ -260,9 +260,27 @@
   </div>
 
   <script>
-    let MENU_DATA = [];
-    let CATEGORIES = ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"];
-    let STORE_CONFIG = {
+    var DEFAULT_FALLBACK_MENU = [
+      { id: "ic1", name: "Chowmein", category: "Indo Chinese", veg: true, desc: "Street-style wok-tossed noodles with crunchy julienned veggies.", portions: [{ label: "Half", price: 30 }, { label: "Full", price: 50 }] },
+      { id: "ic2", name: "Veg Fried Rice", category: "Indo Chinese", veg: true, desc: "Fragrant rice stir-fried with fresh garden vegetables & Indo-Chinese sauces.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic3", name: "Paneer Chilli", category: "Indo Chinese", veg: true, badge: "Popular", desc: "Golden fried paneer cubes tossed in spicy garlic-chilli sauce with capsicum.", portions: [{ label: "Half", price: 80 }, { label: "Full", price: 150 }] },
+      { id: "ic4", name: "Soya Chilli", category: "Indo Chinese", veg: true, desc: "Juicy soya chunks coated in tangy, spicy Indo-Chinese chilli glaze.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic5", name: "Manchurian", category: "Indo Chinese", veg: true, desc: "Crispy mixed-veg dumplings tossed in savoury coriander-garlic Manchurian sauce.", portions: [{ label: "Half", price: 55 }, { label: "Full", price: 100 }] },
+      { id: "ni1", name: "Paneer Butter Masala", category: "North Indian", veg: true, badge: "Best with Naan!", desc: "Creamy, rich & irresistible cottage cheese simmered in buttery tomato-cashew gravy.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] },
+      { id: "ni2", name: "Mix Dal Tadka", category: "North Indian", veg: true, desc: "Homestyle protein-rich yellow & mixed lentils tempered with aromatic spices.", portions: [{ label: "Quarter", price: 50 }, { label: "Half", price: 90 }, { label: "Full", price: 170 }] },
+      { id: "si1", name: "Masala Dosa", category: "South Indian", veg: true, desc: "Crispy golden rice crepe stuffed with spiced potato mash, served with chutney & sambar.", portions: [{ label: "Full", price: 45 }] },
+      { id: "si2", name: "Butter Masala Dosa", category: "South Indian", veg: true, badge: "Must Try", desc: "Crispy masala dosa roasted generously in rich butter.", portions: [{ label: "Full", price: 60 }] },
+      { id: "br1", name: "Roti", category: "Bread", veg: true, desc: "Freshly made whole wheat tawa/tandoori roti.", portions: [{ label: "1 Pc", price: 7 }] },
+      { id: "br2", name: "Butter Roti", category: "Bread", veg: true, desc: "Soft whole wheat roti brushed with butter.", portions: [{ label: "1 Pc", price: 11 }] },
+      { id: "br3", name: "Naan", category: "Bread", veg: true, desc: "Soft and fluffy traditional tandoori naan.", portions: [{ label: "1 Pc", price: 20 }] },
+      { id: "br4", name: "Butter Naan", category: "Bread", veg: true, badge: "Bestseller", desc: "Tandoori naan layered with melted butter — pairs best with Paneer Butter Masala!", portions: [{ label: "1 Pc", price: 25 }] },
+      { id: "br5", name: "Drinking Water", category: "Bread", veg: true, desc: "Chilled packaged drinking water.", portions: [{ label: "1 Bottle", price: 15 }] },
+      { id: "nv1", name: "Chicken Sukka", category: "Non-Veg", veg: false, badge: "Spicy & Rich", desc: "Tender chicken pieces slow-roasted in rich homemade masala.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] }
+    ];
+
+    var MENU_DATA = DEFAULT_FALLBACK_MENU.slice();
+    var CATEGORIES = ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"];
+    var STORE_CONFIG = {
       openHourIST: 10,
       closeHourIST: 22,
       forceClosed: false,
@@ -271,99 +289,95 @@
       closedReason: ""
     };
 
-    let activeCategory = "All";
-    let vegOnly = false;
-    let cart = {};
-    let isShopOpen = true;
-    let currentClosedMessage = "Ordering hours: 10:00 AM to 10:00 PM IST";
+    var activeCategory = "All";
+    var vegOnly = false;
+    var cart = {};
+    var isShopOpen = true;
+    var currentClosedMessage = "Ordering hours: 10:00 AM to 10:00 PM IST";
 
-    let currentModalItem = null;
-    let selectedPortionIndex = 0;
-    let modalQuantity = 1;
+    var currentModalItem = null;
+    var selectedPortionIndex = 0;
+    var modalQuantity = 1;
 
-    // Fetch live data from backend API
     async function loadStoreFromServer() {
       try {
-        const res = await fetch('/api/store');
-        const data = await res.json();
-        if (data.menu) MENU_DATA = data.menu;
-        if (data.categories) CATEGORIES = data.categories;
-        if (data.storeConfig) STORE_CONFIG = data.storeConfig;
+        var res = await fetch('/api/store');
+        if (res.ok) {
+          var data = await res.json();
+          if (data.menu && data.menu.length > 0) MENU_DATA = data.menu;
+          if (data.categories) CATEGORIES = data.categories;
+          if (data.storeConfig) STORE_CONFIG = data.storeConfig;
+        }
       } catch (e) {
-        console.error("Failed to fetch store data:", e);
+        console.error("Using fallback menu:", e);
       }
       checkStoreStatusIST();
       renderCategories();
       renderMenu();
     }
 
-    // Format datetime nicely for customers
     function formatDateTimeDisplay(isoStr) {
       if (!isoStr) return "";
-      const d = new Date(isoStr);
+      var d = new Date(isoStr);
       if (isNaN(d.getTime())) return isoStr;
       return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
     }
 
-    // Check Default 10 AM - 10 PM IST AND Admin Custom Date/Time Closure
     function checkStoreStatusIST() {
-      const now = new Date();
-
-      // Get current IST hour
-      const istTimeParts = new Intl.DateTimeFormat('en-US', {
+      var now = new Date();
+      var istTimeParts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kolkata',
         hour: 'numeric',
         minute: 'numeric',
         hour12: false
       }).formatToParts(now);
-      const hourPart = istTimeParts.find(p => p.type === 'hour');
-      const istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
 
-      const withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
+      var hourPart = istTimeParts.find(function(p) { return p.type === 'hour'; });
+      var istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
 
-      // Check if current time falls inside Admin's scheduled closed window
-      let withinAdminClosedWindow = false;
+      var withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
+
+      var withinAdminClosedWindow = false;
       if (STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil) {
-        const fromTime = new Date(STORE_CONFIG.closedFrom).getTime();
-        const untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
-        const nowTime = now.getTime();
+        var fromTime = new Date(STORE_CONFIG.closedFrom).getTime();
+        var untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
+        var nowTime = now.getTime();
         if (nowTime >= fromTime && nowTime <= untilTime) {
           withinAdminClosedWindow = true;
         }
       } else if (STORE_CONFIG.closedUntil && !STORE_CONFIG.closedFrom) {
-        const untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
-        if (now.getTime() <= untilTime) {
+        var untilOnly = new Date(STORE_CONFIG.closedUntil).getTime();
+        if (now.getTime() <= untilOnly) {
           withinAdminClosedWindow = true;
         }
       }
 
-      const badge = document.getElementById("storeStatusBadge");
-      const closedBanner = document.getElementById("closedBanner");
-      const bannerTitle = document.getElementById("closedBannerTitle");
-      const bannerReason = document.getElementById("closedBannerReason");
-      const bannerTime = document.getElementById("closedBannerTime");
-      const subtext = document.getElementById("storeTimingSubtext");
+      var badge = document.getElementById("storeStatusBadge");
+      var closedBanner = document.getElementById("closedBanner");
+      var bannerTitle = document.getElementById("closedBannerTitle");
+      var bannerReason = document.getElementById("closedBannerReason");
+      var bannerTime = document.getElementById("closedBannerTime");
+      var subtext = document.getElementById("storeTimingSubtext");
 
       if (STORE_CONFIG.forceClosed || withinAdminClosedWindow) {
         isShopOpen = false;
-        const reasonText = STORE_CONFIG.closedReason ? `Reason: ${STORE_CONFIG.closedReason}` : "Temporarily closed by store admin.";
-        const untilText = STORE_CONFIG.closedUntil
-          ? `Re-opening on: ${formatDateTimeDisplay(STORE_CONFIG.closedUntil)}`
-          : `Regular hours: 10:00 AM to 10:00 PM IST`;
+        var reasonText = STORE_CONFIG.closedReason ? ("Reason: " + STORE_CONFIG.closedReason) : "Temporarily closed by store admin.";
+        var untilText = STORE_CONFIG.closedUntil
+          ? ("Re-opening on: " + formatDateTimeDisplay(STORE_CONFIG.closedUntil))
+          : "Regular hours: 10:00 AM to 10:00 PM IST";
 
-        currentClosedMessage = `${reasonText}\n${untilText}`;
+        currentClosedMessage = reasonText + "\n" + untilText;
         badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
         badge.innerText = "Closed";
         subtext.innerText = STORE_CONFIG.closedReason || "Temporarily Closed";
 
         bannerTitle.innerText = "We are temporarily closed!";
         bannerReason.innerText = reasonText;
-        bannerTime.innerText = STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil
-          ? `Closed from ${formatDateTimeDisplay(STORE_CONFIG.closedFrom)} to ${formatDateTimeDisplay(STORE_CONFIG.closedUntil)}`
+        bannerTime.innerText = (STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil)
+          ? ("Closed from " + formatDateTimeDisplay(STORE_CONFIG.closedFrom) + " to " + formatDateTimeDisplay(STORE_CONFIG.closedUntil))
           : untilText;
         closedBanner.classList.remove("hidden");
 
-        // Clear cart if shop closes
         cart = {};
         updateCartUI();
       } else if (!withinDefaultHours) {
@@ -374,7 +388,7 @@
         subtext.innerText = "Opens 10:00 AM – 10:00 PM IST";
 
         bannerTitle.innerText = "We are currently closed!";
-        bannerReason.innerText = STORE_CONFIG.closedReason ? `Note: ${STORE_CONFIG.closedReason}` : "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
+        bannerReason.innerText = STORE_CONFIG.closedReason ? ("Note: " + STORE_CONFIG.closedReason) : "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
         bannerTime.innerText = "Ordering hours: 10:00 AM to 10:00 PM IST";
         closedBanner.classList.remove("hidden");
 
@@ -390,20 +404,23 @@
     }
 
     function vegBadgeHTML(isVeg) {
-      const border = isVeg ? "border-green-600" : "border-red-600";
-      const dot = isVeg ? "bg-green-600" : "bg-red-600";
-      return `<span class="inline-flex w-4 h-4 border ${} items-center justify-center p-0.5 rounded-sm shrink-0">
-                <span class="w-2 h-2 ${} rounded-full"></span>
-              </span>`;
+      var border = isVeg ? "border-green-600" : "border-red-600";
+      var dot = isVeg ? "bg-green-600" : "bg-red-600";
+      return '<span class="inline-flex w-4 h-4 border ' + border + ' items-center justify-center p-0.5 rounded-sm shrink-0">' +
+               '<span class="w-2 h-2 ' + dot + ' rounded-full"></span>' +
+             '</span>';
     }
 
     function renderCategories() {
-      document.getElementById("categoryTabs").innerHTML = CATEGORIES.map(cat => `
-        <button onclick="setCategory('${}')" 
-          class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ${
-            activeCategory === cat ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }">${}</button>
-      `).join("");
+      var html = "";
+      for (var i = 0; i < CATEGORIES.length; i++) {
+        var cat = CATEGORIES[i];
+        var cls = (activeCategory === cat)
+          ? "bg-gray-900 text-white shadow-sm"
+          : "bg-gray-100 text-gray-600 hover:bg-gray-200";
+        html += '<button onclick="setCategory(\'' + cat + '\')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ' + cls + '">' + cat + '</button>';
+      }
+      document.getElementById("categoryTabs").innerHTML = html;
     }
 
     function setCategory(cat) {
@@ -414,8 +431,8 @@
 
     function toggleVegOnly() {
       vegOnly = !vegOnly;
-      const btn = document.getElementById("vegToggle");
-      const text = document.getElementById("vegToggleText");
+      var btn = document.getElementById("vegToggle");
+      var text = document.getElementById("vegToggleText");
       if (vegOnly) {
         btn.className = "px-3.5 py-2.5 rounded-xl border-2 border-green-700 bg-green-600 text-white text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0 shadow-md shadow-green-600/25";
         text.innerText = "Veg Only ✓";
@@ -427,106 +444,106 @@
     }
 
     function getItemTotalQty(itemId) {
-      return Object.values(cart).filter(e => e.item.id === itemId).reduce((sum, e) => sum + e.qty, 0);
+      var entries = Object.values(cart);
+      var sum = 0;
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].item.id === itemId) sum += entries[i].qty;
+      }
+      return sum;
     }
 
     function handleMenuMinus(itemId) {
-      const matchingKeys = Object.keys(cart).filter(k => cart[k].item.id === itemId);
+      var matchingKeys = Object.keys(cart).filter(function(k) { return cart[k].item.id === itemId; });
       if (matchingKeys.length === 1) {
         changeCartKeyQty(matchingKeys[0], -1);
       } else if (matchingKeys.length > 1) {
-        const item = MENU_DATA.find(i => i.id === itemId);
+        var item = MENU_DATA.find(function(i) { return i.id === itemId; });
         if (item) openPortionModal(item);
       }
     }
 
     function renderMenu() {
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      const container = document.getElementById("menuContainer");
+      var q = document.getElementById("searchInput").value.toLowerCase();
+      var container = document.getElementById("menuContainer");
 
-      const filtered = MENU_DATA.filter(item => {
+      var filtered = MENU_DATA.filter(function(item) {
         if (vegOnly && !item.veg) return false;
         if (activeCategory !== "All" && item.category !== activeCategory) return false;
         if (q && !item.name.toLowerCase().includes(q) && !item.category.toLowerCase().includes(q)) return false;
         return true;
       });
 
-      const grouped = {};
-      filtered.forEach(item => {
+      var grouped = {};
+      filtered.forEach(function(item) {
         if (!grouped[item.category]) grouped[item.category] = [];
         grouped[item.category].push(item);
       });
 
-      if (Object.keys(grouped).length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-gray-400 font-bold text-sm">No dishes found matching your search.</div>`;
+      var groupKeys = Object.keys(grouped);
+      if (groupKeys.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-gray-400 font-bold text-sm">No dishes found matching your search.</div>';
         return;
       }
 
-      container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
-        <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">
-            <h2 class="font-extrabold text-base text-gray-900">${}</h2>
-            <span class="text-xs font-bold text-gray-400">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
-          </div>
-          <div class="divide-y divide-gray-100">
-            ${items.map(item => {
-              const multi = item.portions.length > 1;
-              const qtyInCart = getItemTotalQty(item.id);
+      var out = "";
+      for (var g = 0; g < groupKeys.length; g++) {
+        var cat = groupKeys[g];
+        var items = grouped[cat];
+        out += '<section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">';
+        out += '<div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">';
+        out += '<h2 class="font-extrabold text-base text-gray-900">' + cat + '</h2>';
+        out += '<span class="text-xs font-bold text-gray-400">' + items.length + ' ' + (items.length === 1 ? 'item' : 'items') + '</span>';
+        out += '</div><div class="divide-y divide-gray-100">';
 
-              return `
-                <div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3">
-                  <div class="flex-1 pr-2">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      ${vegBadgeHTML(item.veg)}
-                      <h3 class="font-extrabold text-gray-900 text-sm sm:text-base">${item.name}</h3>
-                      ${item.badge ? `<span class="bg-orange-100 text-orange-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md">${item.badge}</span>` : ''}
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 mt-1.5">
-                      ${item.portions.map(p => `
-                        <span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-md font-bold">
-                          ${p.label}: <span class="text-orange-600">₹${p.price}</span>
-                        </span>
-                      `).join("")}
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">${item.desc}</p>
-                  </div>
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          var multi = item.portions.length > 1;
+          var qtyInCart = getItemTotalQty(item.id);
 
-                  <div class="flex flex-col items-center shrink-0">
-                    ${!isShopOpen ? `
-                      <button onclick="handleAddClick('${item.id}')" 
-                        class="w-24 py-2 px-2 rounded-xl font-extrabold text-xs border-2 bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">
-                        CLOSED
-                      </button>
-                    ` : qtyInCart > 0 ? `
-                      <div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">
-                        <button onclick="handleMenuMinus('${item.id}')" class="px-1 text-base leading-none hover:text-red-600 transition">−</button>
-                        <span>${}</span>
-                        <button onclick="handleAddClick('${item.id}')" class="px-1 text-base leading-none hover:text-green-900 transition">+</button>
-                      </div>
-                    ` : `
-                      <button onclick="handleAddClick('${item.id}')" 
-                        class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 bg-white border-gray-200 text-green-600 hover:border-green-600 shadow-sm transition">
-                        ADD +
-                      </button>
-                    `}
-                    ${multi ? `<span class="text-[10px] text-gray-400 font-semibold mt-1">Customisable</span>` : ''}
-                  </div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        </section>
-      `).join("");
+          out += '<div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3">';
+          out += '<div class="flex-1 pr-2">';
+          out += '<div class="flex items-center gap-1.5 flex-wrap">' + vegBadgeHTML(item.veg);
+          out += '<h3 class="font-extrabold text-gray-900 text-sm sm:text-base">' + item.name + '</h3>';
+          if (item.badge) {
+            out += '<span class="bg-orange-100 text-orange-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md">' + item.badge + '</span>';
+          }
+          out += '</div><div class="flex flex-wrap gap-1.5 mt-1.5">';
+          for (var p = 0; p < item.portions.length; p++) {
+            out += '<span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-md font-bold">' +
+                     item.portions[p].label + ': <span class="text-orange-600">₹' + item.portions[p].price + '</span>' +
+                   '</span>';
+          }
+          out += '</div><p class="text-xs text-gray-500 mt-1.5 leading-relaxed">' + item.desc + '</p></div>';
+
+          out += '<div class="flex flex-col items-center shrink-0">';
+          if (!isShopOpen) {
+            out += '<button onclick="handleAddClick(\'' + item.id + '\')" class="w-24 py-2 px-2 rounded-xl font-extrabold text-xs border-2 bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">CLOSED</button>';
+          } else if (qtyInCart > 0) {
+            out += '<div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">' +
+                     '<button onclick="handleMenuMinus(\'' + item.id + '\')" class="px-1 text-base leading-none hover:text-red-600 transition">−</button>' +
+                     '<span>' + qtyInCart + '</span>' +
+                     '<button onclick="handleAddClick(\'' + item.id + '\')" class="px-1 text-base leading-none hover:text-green-900 transition">+</button>' +
+                   '</div>';
+          } else {
+            out += '<button onclick="handleAddClick(\'' + item.id + '\')" class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 bg-white border-gray-200 text-green-600 hover:border-green-600 shadow-sm transition">ADD +</button>';
+          }
+          if (multi) {
+            out += '<span class="text-[10px] text-gray-400 font-semibold mt-1">Customisable</span>';
+          }
+          out += '</div></div>';
+        }
+        out += '</div></section>';
+      }
+      container.innerHTML = out;
     }
 
-    // STRICT CHECK AT START: Prevent adding to cart when shop is closed!
     function handleAddClick(itemId) {
       checkStoreStatusIST();
       if (!isShopOpen) {
-        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
+        alert("🚫 Sorry, Foody Bites is currently CLOSED!\n\n" + currentClosedMessage);
         return;
       }
-      const item = MENU_DATA.find(i => i.id === itemId);
+      var item = MENU_DATA.find(function(i) { return i.id === itemId; });
       if (!item) return;
       if (item.portions.length === 1) {
         addToCart(item, item.portions[0], 1);
@@ -537,9 +554,9 @@
 
     function openPortionModal(item) {
       currentModalItem = item;
-      const existingIdx = item.portions.findIndex(p => cart[`${item.id}_${p.label}`]);
+      var existingIdx = item.portions.findIndex(function(p) { return cart[item.id + "_" + p.label]; });
       selectedPortionIndex = existingIdx !== -1 ? existingIdx : 0;
-      const key = `${item.id}_${item.portions[selectedPortionIndex].label}`;
+      var key = item.id + "_" + item.portions[selectedPortionIndex].label;
       modalQuantity = cart[key] ? cart[key].qty : 1;
 
       document.getElementById("modalVegIcon").innerHTML = vegBadgeHTML(item.veg);
@@ -549,35 +566,36 @@
     }
 
     function renderModalPortions() {
-      const portion = currentModalItem.portions[selectedPortionIndex];
-      const key = `${currentModalItem.id}_${portion.label}`;
-      const existingQty = cart[key] ? cart[key].qty : 0;
+      var portion = currentModalItem.portions[selectedPortionIndex];
+      var key = currentModalItem.id + "_" + portion.label;
+      var existingQty = cart[key] ? cart[key].qty : 0;
 
       document.getElementById("modalQty").innerText = modalQuantity;
-      document.getElementById("modalPortionOptions").innerHTML = currentModalItem.portions.map((p, idx) => {
-        const active = idx === selectedPortionIndex;
-        const pKey = `${currentModalItem.id}_${p.label}`;
-        const inCartQty = cart[pKey] ? cart[pKey].qty : 0;
+      var html = "";
+      for (var idx = 0; idx < currentModalItem.portions.length; idx++) {
+        var p = currentModalItem.portions[idx];
+        var active = (idx === selectedPortionIndex);
+        var pKey = currentModalItem.id + "_" + p.label;
+        var inCartQty = cart[pKey] ? cart[pKey].qty : 0;
 
-        return `
-          <div onclick="selectPortion(${})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
-            active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50'
-          }">
-            <div class="flex items-center gap-3">
-              <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? 'border-orange-600' : 'border-gray-300'}">
-                ${active ? '<span class="w-2.5 h-2.5 rounded-full bg-orange-600"></span>' : ''}
-              </span>
-              <span class="font-bold text-sm text-gray-900">${p.label}</span>
-              ${inCartQty > 0 ? `<span class="text-[10px] bg-green-100 text-green-700 font-extrabold px-2 py-0.5 rounded-full">${inCartQty} in cart</span>` : ''}
-            </div>
-            <span class="font-extrabold text-sm text-gray-900">₹${p.price}</span>
-          </div>
-        `;
-      }).join("");
+        html += '<div onclick="selectPortion(' + idx + ')" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ' + (active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50') + '">';
+        html += '<div class="flex items-center gap-3">';
+        html += '<span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ' + (active ? 'border-orange-600' : 'border-gray-300') + '">';
+        if (active) html += '<span class="w-2.5 h-2.5 rounded-full bg-orange-600"></span>';
+        html += '</span>';
+        html += '<span class="font-bold text-sm text-gray-900">' + p.label + '</span>';
+        if (inCartQty > 0) {
+          html += '<span class="text-[10px] bg-green-100 text-green-700 font-extrabold px-2 py-0.5 rounded-full">' + inCartQty + ' in cart</span>';
+        }
+        html += '</div>';
+        html += '<span class="font-extrabold text-sm text-gray-900">₹' + p.price + '</span>';
+        html += '</div>';
+      }
+      document.getElementById("modalPortionOptions").innerHTML = html;
 
-      const confirmBtn = document.getElementById("modalConfirmBtn");
-      const confirmText = document.getElementById("modalConfirmText");
-      const totalSpan = document.getElementById("modalTotalBtn");
+      var confirmBtn = document.getElementById("modalConfirmBtn");
+      var confirmText = document.getElementById("modalConfirmText");
+      var totalSpan = document.getElementById("modalTotalBtn");
 
       if (modalQuantity === 0 && existingQty > 0) {
         confirmBtn.className = "flex-1 bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition";
@@ -586,23 +604,23 @@
       } else {
         confirmBtn.className = "flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition";
         confirmText.innerText = existingQty > 0 ? "Update Cart" : "Add Item to Cart";
-        totalSpan.innerText = `₹${portion.price * modalQuantity}`;
+        totalSpan.innerText = "₹" + (portion.price * modalQuantity);
       }
     }
 
     function selectPortion(idx) {
       selectedPortionIndex = idx;
-      const portion = currentModalItem.portions[selectedPortionIndex];
-      const key = `${currentModalItem.id}_${portion.label}`;
+      var portion = currentModalItem.portions[selectedPortionIndex];
+      var key = currentModalItem.id + "_" + portion.label;
       modalQuantity = cart[key] ? cart[key].qty : 1;
       renderModalPortions();
     }
 
     function changeModalQty(delta) {
-      const portion = currentModalItem.portions[selectedPortionIndex];
-      const key = `${currentModalItem.id}_${portion.label}`;
-      const existingQty = cart[key] ? cart[key].qty : 0;
-      const minAllowed = existingQty > 0 ? 0 : 1;
+      var portion = currentModalItem.portions[selectedPortionIndex];
+      var key = currentModalItem.id + "_" + portion.label;
+      var existingQty = cart[key] ? cart[key].qty : 0;
+      var minAllowed = existingQty > 0 ? 0 : 1;
       modalQuantity = Math.max(minAllowed, modalQuantity + delta);
       renderModalPortions();
     }
@@ -611,15 +629,15 @@
       checkStoreStatusIST();
       if (!isShopOpen) {
         closePortionModal();
-        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
+        alert("🚫 Sorry, Foody Bites is currently CLOSED!\n\n" + currentClosedMessage);
         return;
       }
-      const portion = currentModalItem.portions[selectedPortionIndex];
-      const key = `${currentModalItem.id}_${portion.label}`;
+      var portion = currentModalItem.portions[selectedPortionIndex];
+      var key = currentModalItem.id + "_" + portion.label;
       if (modalQuantity <= 0) {
         delete cart[key];
       } else {
-        cart[key] = { item: currentModalItem, portion, qty: modalQuantity };
+        cart[key] = { item: currentModalItem, portion: portion, qty: modalQuantity };
       }
       updateCartUI();
       renderMenu();
@@ -631,8 +649,8 @@
     }
 
     function addToCart(item, portion, qty) {
-      const key = `${item.id}_${portion.label}`;
-      if (!cart[key]) cart[key] = { item, portion, qty: 0 };
+      var key = item.id + "_" + portion.label;
+      if (!cart[key]) cart[key] = { item: item, portion: portion, qty: 0 };
       cart[key].qty += qty;
       if (cart[key].qty <= 0) delete cart[key];
       updateCartUI();
@@ -649,14 +667,18 @@
     }
 
     function updateCartUI() {
-      const entries = Object.values(cart);
-      const count = entries.reduce((s, e) => s + e.qty, 0);
-      const total = entries.reduce((s, e) => s + e.qty * e.portion.price, 0);
-      const bar = document.getElementById("stickyCartBar");
+      var entries = Object.values(cart);
+      var count = 0;
+      var total = 0;
+      for (var i = 0; i < entries.length; i++) {
+        count += entries[i].qty;
+        total += entries[i].qty * entries[i].portion.price;
+      }
+      var bar = document.getElementById("stickyCartBar");
       if (count > 0 && isShopOpen) {
         bar.classList.remove("hidden");
-        document.getElementById("cartCountBadge").innerText = `${count} ITEM${count > 1 ? 'S' : ''}`;
-        document.getElementById("cartTotalBar").innerText = `₹${total}`;
+        document.getElementById("cartCountBadge").innerText = count + " ITEM" + (count > 1 ? "S" : "");
+        document.getElementById("cartTotalBar").innerText = "₹" + total;
       } else {
         bar.classList.add("hidden");
         closeCartDrawer();
@@ -673,65 +695,68 @@
     }
 
     function renderCartDrawerItems() {
-      const entries = Object.entries(cart);
-      let total = 0;
-      document.getElementById("cartItemsList").innerHTML = entries.map(([key, e]) => {
-        const sub = e.qty * e.portion.price;
+      var keys = Object.keys(cart);
+      var total = 0;
+      var html = "";
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var e = cart[key];
+        var sub = e.qty * e.portion.price;
         total += sub;
-        return `
-          <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200/80">
-            <div>
-              <div class="flex items-center gap-1.5">
-                ${vegBadgeHTML(e.item.veg)}
-                <span class="font-bold text-sm text-gray-900">${e.item.name}</span>
-              </div>
-              <span class="text-[11px] text-orange-700 font-bold bg-orange-100 px-2 py-0.5 rounded mt-1 inline-block">
-                Portion: ${e.portion.label} (₹${e.portion.price})
-              </span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">
-                <button onclick="changeCartKeyQty('${}', -1)" class="text-green-700 text-sm">−</button>
-                <span>${e.qty}</span>
-                <button onclick="changeCartKeyQty('${}', 1)" class="text-green-700 text-sm">+</button>
-              </div>
-              <div class="font-extrabold text-sm w-12 text-right">₹${}</div>
-            </div>
-          </div>
-        `;
-      }).join("");
-      document.getElementById("drawerGrandTotal").innerText = `₹${total}`;
+        html += '<div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200/80">' +
+                  '<div>' +
+                    '<div class="flex items-center gap-1.5">' + vegBadgeHTML(e.item.veg) +
+                      '<span class="font-bold text-sm text-gray-900">' + e.item.name + '</span>' +
+                    '</div>' +
+                    '<span class="text-[11px] text-orange-700 font-bold bg-orange-100 px-2 py-0.5 rounded mt-1 inline-block">' +
+                      'Portion: ' + e.portion.label + ' (₹' + e.portion.price + ')' +
+                    '</span>' +
+                  '</div>' +
+                  '<div class="flex items-center gap-3">' +
+                    '<div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">' +
+                      '<button onclick="changeCartKeyQty(\'' + key + '\', -1)" class="text-green-700 text-sm">−</button>' +
+                      '<span>' + e.qty + '</span>' +
+                      '<button onclick="changeCartKeyQty(\'' + key + '\', 1)" class="text-green-700 text-sm">+</button>' +
+                    '</div>' +
+                    '<div class="font-extrabold text-sm w-12 text-right">₹' + sub + '</div>' +
+                  '</div>' +
+                '</div>';
+      }
+      document.getElementById("cartItemsList").innerHTML = html;
+      document.getElementById("drawerGrandTotal").innerText = "₹" + total;
     }
 
     function checkoutWhatsApp() {
       checkStoreStatusIST();
       if (!isShopOpen) {
-        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
+        alert("🚫 Sorry, Foody Bites is currently CLOSED!\n\n" + currentClosedMessage);
         return;
       }
-      const name = document.getElementById("custName").value.trim();
-      const address = document.getElementById("custAddress").value.trim();
+      var name = document.getElementById("custName").value.trim();
+      var address = document.getElementById("custAddress").value.trim();
       if (!name || !address) {
         alert("Please enter your Name and Delivery Address!");
         return;
       }
-      const entries = Object.values(cart);
-      let total = 0;
-      const lines = entries.map((e, idx) => {
-        const sub = e.qty * e.portion.price;
+      var entries = Object.values(cart);
+      var total = 0;
+      var lines = [];
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        var sub = e.qty * e.portion.price;
         total += sub;
-        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${}`;
-      }).join("\n");
+        lines.push((i + 1) + ". *" + e.item.name + "* [" + e.portion.label + "] x " + e.qty + " = ₹" + sub);
+      }
 
-      const text = `*🍔 NEW ORDER — FOODY BITES*\n\n` +
-                   `*👤 Name:* ${name}\n` +
-                   `*📍 Address:* ${address}\n\n` +
-                   `*🧾 Order Summary:*\n${lines}\n\n` +
-                   `*💰 Grand Total: ₹${total}*\n` +
-                   `------------------------\n` +
-                   `⚡ _Please confirm my order!_`;
+      var text = "*🍔 NEW ORDER — FOODY BITES*\n\n" +
+                 "*👤 Name:* " + name + "\n" +
+                 "*📍 Address:* " + address + "\n\n" +
+                 "*🧾 Order Summary:*\n" + lines.join("\n") + "\n\n" +
+                 "*💰 Grand Total: ₹" + total + "*\n" +
+                 "------------------------\n" +
+                 "⚡ _Please confirm my order!_";
 
-      window.open(`https://wa.me/918987715159?text=${encodeURIComponent(text)}`, "_blank");
+      window.open("https://wa.me/918987715159?text=" + encodeURIComponent(text), "_blank");
     }
 
     // ================= ADMIN FUNCTIONS =================
@@ -756,64 +781,69 @@
     }
 
     function renderAdminMenuList() {
-      const list = document.getElementById("adminMenuList");
-      list.innerHTML = MENU_DATA.map((item, idx) => `
-        <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2">
-          <div class="flex justify-between items-center">
-            <span class="font-extrabold text-gray-900 text-xs">${item.name} <span class="text-gray-400 font-normal">(${item.category})</span></span>
-            <button type="button" onclick="adminDeleteDish(${})" class="text-red-600 font-extrabold text-[11px] hover:underline">🗑 Delete</button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            ${item.portions.map((p, pIdx) => `
-              <div class="flex items-center gap-1 bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs">
-                <span class="font-bold text-gray-600">${p.label}: ₹</span>
-                <input type="number" value="${p.price}" onchange="adminUpdatePrice(${}, ${pIdx}, this.value)" class="w-14 font-extrabold text-orange-600 focus:outline-none" />
-              </div>
-            `).join("")}
-          </div>
-        </div>
-      `).join("");
+      var list = document.getElementById("adminMenuList");
+      var html = "";
+      for (var idx = 0; idx < MENU_DATA.length; idx++) {
+        var item = MENU_DATA[idx];
+        html += '<div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2">' +
+                  '<div class="flex justify-between items-center">' +
+                    '<span class="font-extrabold text-gray-900 text-xs">' + item.name + ' <span class="text-gray-400 font-normal">(' + item.category + ')</span></span>' +
+                    '<button type="button" onclick="adminDeleteDish(' + idx + ')" class="text-red-600 font-extrabold text-[11px] hover:underline">🗑 Delete</button>' +
+                  '</div>' +
+                  '<div class="flex flex-wrap gap-2">';
+        for (var pIdx = 0; pIdx < item.portions.length; pIdx++) {
+          var p = item.portions[pIdx];
+          html += '<div class="flex items-center gap-1 bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs">' +
+                    '<span class="font-bold text-gray-600">' + p.label + ': ₹</span>' +
+                    '<input type="number" value="' + p.price + '" onchange="adminUpdatePrice(' + idx + ', ' + pIdx + ', this.value)" class="w-14 font-extrabold text-orange-600 focus:outline-none" />' +
+                  '</div>';
+        }
+        html += '</div></div>';
+      }
+      list.innerHTML = html;
     }
 
     function adminUpdatePrice(itemIdx, portionIdx, newPrice) {
-      const val = parseInt(newPrice, 10);
+      var val = parseInt(newPrice, 10);
       if (!isNaN(val) && val > 0) {
         MENU_DATA[itemIdx].portions[portionIdx].price = val;
       }
     }
 
     function adminDeleteDish(itemIdx) {
-      if (confirm(`Delete "${MENU_DATA[itemIdx].name}" from menu?`)) {
+      if (confirm('Delete "' + MENU_DATA[itemIdx].name + '" from menu?')) {
         MENU_DATA.splice(itemIdx, 1);
         renderAdminMenuList();
       }
     }
 
     function adminAddDish() {
-      const name = document.getElementById("newDishName").value.trim();
-      const category = document.getElementById("newDishCat").value;
-      const veg = document.getElementById("newDishVeg").checked;
-      const badge = document.getElementById("newDishBadge").value.trim();
-      const desc = document.getElementById("newDishDesc").value.trim() || "Freshly prepared dish.";
-      const portionsRaw = document.getElementById("newDishPortions").value.trim();
+      var name = document.getElementById("newDishName").value.trim();
+      var category = document.getElementById("newDishCat").value;
+      var veg = document.getElementById("newDishVeg").checked;
+      var badge = document.getElementById("newDishBadge").value.trim();
+      var desc = document.getElementById("newDishDesc").value.trim() || "Freshly prepared dish.";
+      var portionsRaw = document.getElementById("newDishPortions").value.trim();
 
       if (!name || !portionsRaw) {
         alert("Please enter Dish Name and Portions (e.g. Half:50, Full:90)!");
         return;
       }
 
-      const portions = portionsRaw.split(",").map(part => {
-        const [label, priceStr] = part.split(":").map(s => s.trim());
-        return { label: label || "Full", price: parseInt(priceStr, 10) || 50 };
+      var portions = portionsRaw.split(",").map(function(part) {
+        var splitPart = part.split(":");
+        var label = splitPart[0] ? splitPart[0].trim() : "Full";
+        var priceVal = splitPart[1] ? parseInt(splitPart[1].trim(), 10) : 50;
+        return { label: label, price: priceVal || 50 };
       });
 
-      const newItem = {
+      var newItem = {
         id: "dish_" + Date.now(),
-        name,
-        category,
-        veg,
-        desc,
-        portions
+        name: name,
+        category: category,
+        veg: veg,
+        desc: desc,
+        portions: portions
       };
       if (badge) newItem.badge = badge;
 
@@ -823,17 +853,17 @@
       document.getElementById("newDishDesc").value = "";
       document.getElementById("newDishPortions").value = "";
       renderAdminMenuList();
-      alert(`Added "${name}" to list! Click "Save & Publish Live to Store" below to make it live.`);
+      alert('Added "' + name + '" to list! Click "Save & Publish Live to Store" below to make it live.');
     }
 
     async function saveAdminChanges() {
-      const pwd = document.getElementById("adminPwd").value;
+      var pwd = document.getElementById("adminPwd").value;
       if (!pwd) {
         alert("Please enter your Admin Secret Password at the top!");
         return;
       }
 
-      const updatedConfig = {
+      var updatedConfig = {
         openHourIST: 10,
         closeHourIST: 22,
         forceClosed: document.getElementById("admForceClosed").checked,
@@ -842,11 +872,11 @@
         closedReason: document.getElementById("admClosedReason").value.trim()
       };
 
-      const btn = document.getElementById("adminSaveBtn");
+      var btn = document.getElementById("adminSaveBtn");
       btn.innerText = "Saving to Cloud...";
 
       try {
-        const res = await fetch('/api/admin/update', {
+        var res = await fetch('/api/admin/update', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -857,7 +887,7 @@
             menu: MENU_DATA
           })
         });
-        const result = await res.json();
+        var result = await res.json();
         if (!res.ok) {
           alert("❌ Error: " + (result.error || "Failed to save"));
           btn.innerText = "💾 Save & Publish Live to Store";
@@ -868,7 +898,11 @@
         checkStoreStatusIST();
         renderMenu();
         closeAdminModal();
-        alert("✅ Store updated live for all customers!");
+        if (result.warning) {
+          alert("⚠️ Saved in memory, but note:\n" + result.warning);
+        } else {
+          alert("✅ Store updated live for all customers!");
+        }
       } catch (err) {
         alert("Network error while saving changes.");
       } finally {
@@ -876,9 +910,8 @@
       }
     }
 
-     // Initialize App
-    loadStoreFromServer().then(() => {
-      // Automatically open Admin Panel if URL is foodybites.net/admin
+    // Initialize App
+    loadStoreFromServer().then(function() {
       if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
         openAdminModal();
       }
