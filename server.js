@@ -8,19 +8,18 @@ app.use(express.json());
 const PORT = process.env.PORT || 8080;
 const BUCKET_NAME = process.env.GCS_BUCKET || 'abhishek-test-452001-tfstate';
 const DATA_FILE = 'foody-bites/store-data.json';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // Set via Cloud Run env var!
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 const storage = new Storage();
 
-// Default Initial Data (Used on very first boot before Admin makes changes)
 const DEFAULT_DATA = {
   storeConfig: {
-    openHourIST: 10,  // 10:00 AM IST
-    closeHourIST: 22, // 10:00 PM IST
+    openHourIST: 10,
+    closeHourIST: 22,
     forceClosed: false,
-    closedFrom: "",   // ISO datetime string in IST
-    closedUntil: "",  // ISO datetime string in IST
-    closedReason: ""  // e.g. "Closed for festival"
+    closedFrom: "",
+    closedUntil: "",
+    closedReason: ""
   },
   categories: ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"],
   menu: [
@@ -50,26 +49,23 @@ async function getStoreData() {
     const file = storage.bucket(BUCKET_NAME).file(DATA_FILE);
     const [exists] = await file.exists();
     if (!exists) {
-      await file.save(JSON.stringify(DEFAULT_DATA, null, 2), { contentType: 'application/json' });
-      cachedData = DEFAULT_DATA;
+      cachedData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      // Save in background without blocking the page load!
+      file.save(JSON.stringify(cachedData, null, 2), { contentType: 'application/json' })
+        .catch(e => console.error("Initial background GCS save skipped:", e.message));
       return cachedData;
     }
     const [contents] = await file.download();
     cachedData = JSON.parse(contents.toString());
     return cachedData;
   } catch (err) {
-    console.error("GCS read fallback to default:", err.message);
-    return DEFAULT_DATA;
+    console.error("GCS read error, serving default menu immediately:", err.message);
+    cachedData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    return cachedData;
   }
 }
 
-async function saveStoreData(newData) {
-  cachedData = newData;
-  const file = storage.bucket(BUCKET_NAME).file(DATA_FILE);
-  await file.save(JSON.stringify(newData, null, 2), { contentType: 'application/json' });
-}
-
-// Public API: Fetch Menu & Store Status
+// Public API: Always returns fast
 app.get('/api/store', async (req, res) => {
   const data = await getStoreData();
   res.json(data);
@@ -88,12 +84,25 @@ app.post('/api/admin/update', async (req, res) => {
     storeConfig: storeConfig || current.storeConfig,
     menu: menu || current.menu
   };
-  await saveStoreData(updated);
-  res.json({ success: true, data: updated });
+  cachedData = updated;
+
+  try {
+    const file = storage.bucket(BUCKET_NAME).file(DATA_FILE);
+    await file.save(JSON.stringify(updated, null, 2), { contentType: 'application/json' });
+    res.json({ success: true, persistedToGCS: true, data: updated });
+  } catch (err) {
+    console.error("GCS write error:", err.message);
+    res.json({
+      success: true,
+      persistedToGCS: false,
+      warning: "Updated in memory, but GCS Bucket write permission is missing: " + err.message,
+      data: updated
+    });
+  }
 });
 
-// Serve Frontend
-app.get('/', (req, res) => {
+// Serve Frontend on both '/' and '/admin'
+app.get(['/', '/admin'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

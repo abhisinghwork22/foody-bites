@@ -876,8 +876,13 @@
       }
     }
 
-    // Initialize App
-    loadStoreFromServer();
+     // Initialize App
+    loadStoreFromServer().then(() => {
+      // Automatically open Admin Panel if URL is foodybites.net/admin
+      if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
+        openAdminModal();
+      }
+    });
     setInterval(checkStoreStatusIST, 30000);
   </script>
 </body>

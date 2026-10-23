@@ -37,9 +37,12 @@ jobs:
         echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
     - name: Deploy to Google Cloud Run
-      run: |
-        gcloud run deploy foody-bites-service \
-          --image=${{ env.IMAGE_URI }} \
-          --platform=managed \
-          --region=us-central1 \
-          --allow-unauthenticated
+        run: |
+          gcloud run deploy foody-bites-service \
+            --image=${{ env.IMAGE_URI }} \
+            --platform=managed \
+            --region=us-central1 \
+            --allow-unauthenticated \
+            --memory=128Mi \
+            --max-instances=2 \
+            --set-env-vars="GCS_BUCKET=abhishek-test-452001-tfstate,ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
