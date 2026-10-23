@@ -1,13 +1,15 @@
-FROM nginx:alpine
+FROM node:20-alpine
 
-# Remove default nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Copy ONLY the frontend application file (prevents leaking main.tf)
-COPY index.html /usr/share/nginx/html/index.html
+# Copy only package.json first for Docker layer caching
+COPY package.json ./
+RUN npm install --omit=dev
 
-# Copy custom Nginx config that listens on port 8080
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy application files (still prevents leaking main.tf!)
+COPY server.js ./
+COPY index.html ./
 
-# Expose port 8080 to match Cloud Run requirements
 EXPOSE 8080
+
+CMD ["npm", "start"]

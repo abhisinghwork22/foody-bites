@@ -26,17 +26,21 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-extrabold text-lg tracking-tight text-gray-900">FOODY BITES</h1>
-            <!-- Dynamic Open/Closed Badge (10 AM - 10 PM IST) -->
-            <span id="storeStatusBadge" class="bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
-              Checking...
+            <span id="storeStatusBadge" class="bg-gray-100 text-gray-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+              Loading...
             </span>
           </div>
           <p id="storeTimingSubtext" class="text-xs text-gray-500 font-medium">Craving Solutions • ⚡ 10 AM – 10 PM IST</p>
         </div>
       </div>
-      <a href="https://wa.me/918987715159" target="_blank" class="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-green-100 transition">
-        <span>💬 Support</span>
-      </a>
+      <div class="flex items-center gap-1.5">
+        <button onclick="openAdminModal()" class="bg-gray-100 text-gray-600 px-2.5 py-1.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition" title="Admin Control">
+          ⚙️
+        </button>
+        <a href="https://wa.me/918987715159" target="_blank" class="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-green-100 transition">
+          <span>💬 Support</span>
+        </a>
+      </div>
     </div>
 
     <!-- Search & Veg Filter -->
@@ -46,9 +50,8 @@
           class="w-full bg-gray-100 text-sm rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
         <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
       </div>
-      <!-- Enhanced Veg Only Toggle Button -->
       <button id="vegToggle" onclick="toggleVegOnly()" class="px-3.5 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-700 text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0">
-        <span id="vegToggleIcon" class="w-4 h-4 border-2 border-green-600 bg-white flex items-center justify-center p-0.5 rounded-sm">
+        <span class="w-4 h-4 border-2 border-green-600 bg-white flex items-center justify-center p-0.5 rounded-sm">
           <span class="w-2 h-2 bg-green-600 rounded-full"></span>
         </span>
         <span id="vegToggleText">Veg Only</span>
@@ -59,17 +62,20 @@
     <div id="categoryTabs" class="max-w-xl mx-auto px-4 py-2 flex space-x-2 overflow-x-auto no-scrollbar border-t border-gray-100"></div>
   </header>
 
-  <!-- Store Closed Banner (Shown only outside 10 AM - 10 PM IST) -->
+  <!-- Dynamic Store Closed Banner (Appears on First Page with Admin Reason & Time) -->
   <div id="closedBanner" class="max-w-xl mx-auto px-4 mt-3 hidden">
-    <div class="bg-red-50 border border-red-200 rounded-2xl p-3.5 flex items-center justify-between text-red-800">
-      <div class="flex items-center gap-2.5">
-        <span class="text-xl">🕙</span>
-        <div>
-          <p class="font-extrabold text-xs sm:text-sm">We are currently closed!</p>
-          <p class="text-[11px] text-red-600 font-medium">Ordering hours: 10:00 AM to 10:00 PM IST</p>
+    <div class="bg-red-50 border-2 border-red-300 rounded-2xl p-4 text-red-900 shadow-sm">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl mt-0.5">🔒</span>
+          <div>
+            <p id="closedBannerTitle" class="font-extrabold text-sm sm:text-base text-red-800">We are currently closed!</p>
+            <p id="closedBannerReason" class="text-xs text-red-700 font-bold mt-0.5"></p>
+            <p id="closedBannerTime" class="text-[11px] text-red-600 font-medium mt-1">Regular ordering hours: 10:00 AM to 10:00 PM IST</p>
+          </div>
         </div>
+        <span class="text-[10px] font-extrabold uppercase bg-red-200 text-red-800 px-2.5 py-1 rounded-lg shrink-0">Closed</span>
       </div>
-      <span class="text-[10px] font-extrabold uppercase bg-red-100 text-red-700 px-2.5 py-1 rounded-lg">Closed</span>
     </div>
   </div>
 
@@ -88,7 +94,7 @@
   <!-- Main Menu List -->
   <main id="menuContainer" class="max-w-xl mx-auto px-4 mt-4 space-y-5"></main>
 
-  <!-- Swiggy-Style Portion Selection Bottom Sheet Modal -->
+  <!-- Portion Selection Modal -->
   <div id="portionModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this) closePortionModal()">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl animate-slide-up">
       <div class="p-4 border-b border-gray-100 flex justify-between items-start bg-gray-50">
@@ -101,7 +107,6 @@
         </div>
         <button onclick="closePortionModal()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold flex items-center justify-center">✕</button>
       </div>
-
       <div class="p-4">
         <div class="flex justify-between items-center mb-3">
           <p class="text-xs font-extrabold uppercase text-gray-500 tracking-wider">Variation</p>
@@ -109,7 +114,6 @@
         </div>
         <div id="modalPortionOptions" class="space-y-2.5"></div>
       </div>
-
       <div class="p-4 border-t border-gray-100 bg-white flex items-center justify-between gap-3">
         <div class="flex items-center border-2 border-gray-200 rounded-xl px-3 py-2 gap-4 font-extrabold">
           <button type="button" onclick="changeModalQty(-1)" class="text-orange-600 text-lg leading-none px-1 select-none">−</button>
@@ -124,7 +128,7 @@
     </div>
   </div>
 
-  <!-- Sticky Bottom Cart Bar (Blinkit/Swiggy Style) -->
+  <!-- Sticky Bottom Cart Bar -->
   <div id="stickyCartBar" class="fixed bottom-0 inset-x-0 z-40 p-3 hidden">
     <div class="max-w-xl mx-auto bg-green-600 text-white rounded-2xl p-3.5 shadow-2xl flex items-center justify-between cursor-pointer hover:bg-green-700 transition" onclick="openCartDrawer()">
       <div class="flex items-center gap-3">
@@ -141,7 +145,7 @@
     </div>
   </div>
 
-  <!-- Slide-Up Checkout Cart Drawer -->
+  <!-- Checkout Cart Drawer -->
   <div id="cartDrawer" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this) closeCartDrawer()">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-slide-up">
       <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
@@ -151,112 +155,254 @@
         </div>
         <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold">✕</button>
       </div>
-
       <div id="cartItemsList" class="p-4 overflow-y-auto space-y-2.5 flex-1"></div>
-
-      <!-- Customer Address & WhatsApp Checkout -->
       <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-2.5">
         <input id="custName" type="text" placeholder="Your Name *" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
         <textarea id="custAddress" rows="2" placeholder="Complete Delivery Address / Landmark *" class="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"></textarea>
-        
         <div class="flex justify-between items-center pt-1 font-extrabold text-base border-t border-gray-200">
           <span>To Pay</span>
           <span id="drawerGrandTotal" class="text-orange-600 text-lg">₹0</span>
         </div>
-
-        <button id="whatsappCheckoutBtn" type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
+        <button type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
           <span>📲 Send Order on WhatsApp</span>
         </button>
       </div>
     </div>
   </div>
 
+  <!-- ================= ADMIN CONTROL PANEL MODAL ================= -->
+  <div id="adminModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white w-full max-w-lg rounded-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 bg-gray-900 text-white flex justify-between items-center">
+        <div>
+          <h3 class="font-extrabold text-base">⚙️ Foody Bites — Admin Portal</h3>
+          <p class="text-[11px] text-gray-400">Control store timing, closure announcements & menu items</p>
+        </div>
+        <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-gray-800 text-gray-300 font-bold">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-5 flex-1 text-xs sm:text-sm">
+        <!-- Admin Password -->
+        <div class="bg-orange-50 border border-orange-200 p-3 rounded-2xl">
+          <label class="font-extrabold text-gray-800 block mb-1">🔑 Admin Secret Password *</label>
+          <input id="adminPwd" type="password" placeholder="Enter Admin Password to save changes" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold" />
+        </div>
+
+        <!-- Section 1: Store Closure & Timing Control -->
+        <div class="border border-gray-200 rounded-2xl p-3.5 space-y-3 bg-gray-50">
+          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">🕙 Store Availability & Custom Closure</h4>
+          
+          <label class="flex items-center gap-2 font-bold text-red-700 cursor-pointer">
+            <input type="checkbox" id="admForceClosed" class="w-4 h-4 accent-red-600" />
+            <span>Force Close Store Immediately (Override 10 AM - 10 PM)</span>
+          </label>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-bold text-gray-600 text-[11px] mb-1">Close From (Date & Time)</label>
+              <input type="datetime-local" id="admClosedFrom" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
+            </div>
+            <div>
+              <label class="block font-bold text-gray-600 text-[11px] mb-1">Close Until / Re-opens At</label>
+              <input type="datetime-local" id="admClosedUntil" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-600 text-[11px] mb-1">Closure Reason (Shown on First Page Banner)</label>
+            <input type="text" id="admClosedReason" placeholder="e.g. Closed for family function / Back at 6 PM!" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
+          </div>
+
+          <button type="button" onclick="clearClosureSchedule()" class="text-[11px] text-blue-600 font-extrabold underline">
+            Reset to Default Hours (10 AM – 10 PM IST Open)
+          </button>
+        </div>
+
+        <!-- Section 2: Add New Menu Item -->
+        <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5 bg-gray-50">
+          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">➕ Add New Dish to Menu</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="newDishName" type="text" placeholder="Dish Name (e.g. Egg Roll)" class="p-2 rounded-xl border border-gray-300 bg-white font-semibold" />
+            <select id="newDishCat" class="p-2 rounded-xl border border-gray-300 bg-white font-semibold">
+              <option value="Indo Chinese">Indo Chinese</option>
+              <option value="North Indian">North Indian</option>
+              <option value="South Indian">South Indian</option>
+              <option value="Bread">Bread</option>
+              <option value="Non-Veg">Non-Veg</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 font-bold text-green-700">
+              <input type="checkbox" id="newDishVeg" checked class="w-4 h-4 accent-green-600" /> Veg Item
+            </label>
+            <input id="newDishBadge" type="text" placeholder="Badge (Optional: e.g. Bestseller)" class="flex-1 p-1.5 rounded-xl border border-gray-300 bg-white text-xs" />
+          </div>
+          <input id="newDishDesc" type="text" placeholder="Short description..." class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs" />
+          <input id="newDishPortions" type="text" placeholder="Portions format: Half:60, Full:110  OR  1 Pc:15" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-bold" />
+          <button type="button" onclick="adminAddDish()" class="w-full bg-gray-900 text-white font-extrabold py-2 rounded-xl text-xs hover:bg-black">
+            + Add Dish to List Below
+          </button>
+        </div>
+
+        <!-- Section 3: Edit Prices or Delete Existing Menu Items -->
+        <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5">
+          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">✏️ Edit Prices / Delete Dishes</h4>
+          <div id="adminMenuList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-gray-200 bg-white flex gap-2">
+        <button type="button" onclick="saveAdminChanges()" id="adminSaveBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 rounded-xl shadow-lg text-sm transition">
+          💾 Save & Publish Live to Store
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const MENU_DATA = [
-      // INDO CHINESE
-      { id: "ic1", name: "Chowmein", category: "Indo Chinese", veg: true, desc: "Street-style wok-tossed noodles with crunchy julienned veggies.", portions: [{ label: "Half", price: 30 }, { label: "Full", price: 50 }] },
-      { id: "ic2", name: "Veg Fried Rice", category: "Indo Chinese", veg: true, desc: "Fragrant rice stir-fried with fresh garden vegetables & Indo-Chinese sauces.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
-      { id: "ic3", name: "Paneer Chilli", category: "Indo Chinese", veg: true, badge: "Popular", desc: "Golden fried paneer cubes tossed in spicy garlic-chilli sauce with capsicum.", portions: [{ label: "Half", price: 80 }, { label: "Full", price: 150 }] },
-      { id: "ic4", name: "Soya Chilli", category: "Indo Chinese", veg: true, desc: "Juicy soya chunks coated in tangy, spicy Indo-Chinese chilli glaze.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
-      { id: "ic5", name: "Manchurian", category: "Indo Chinese", veg: true, desc: "Crispy mixed-veg dumplings tossed in savoury coriander-garlic Manchurian sauce.", portions: [{ label: "Half", price: 55 }, { label: "Full", price: 100 }] },
+    let MENU_DATA = [];
+    let CATEGORIES = ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"];
+    let STORE_CONFIG = {
+      openHourIST: 10,
+      closeHourIST: 22,
+      forceClosed: false,
+      closedFrom: "",
+      closedUntil: "",
+      closedReason: ""
+    };
 
-      // NORTH INDIAN
-      { id: "ni1", name: "Paneer Butter Masala", category: "North Indian", veg: true, badge: "Best with Naan!", desc: "Creamy, rich & irresistible cottage cheese simmered in buttery tomato-cashew gravy.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] },
-      { id: "ni2", name: "Mix Dal Tadka", category: "North Indian", veg: true, desc: "Homestyle protein-rich yellow & mixed lentils tempered with aromatic spices.", portions: [{ label: "Quarter", price: 50 }, { label: "Half", price: 90 }, { label: "Full", price: 170 }] },
-
-      // SOUTH INDIAN
-      { id: "si1", name: "Masala Dosa", category: "South Indian", veg: true, desc: "Crispy golden rice crepe stuffed with spiced potato mash, served with chutney & sambar.", portions: [{ label: "Full", price: 45 }] },
-      { id: "si2", name: "Butter Masala Dosa", category: "South Indian", veg: true, badge: "Must Try", desc: "Crispy masala dosa roasted generously in rich butter.", portions: [{ label: "Full", price: 60 }] },
-
-      // BREAD & WATER
-      { id: "br1", name: "Roti", category: "Bread", veg: true, desc: "Freshly made whole wheat tawa/tandoori roti.", portions: [{ label: "1 Pc", price: 7 }] },
-      { id: "br2", name: "Butter Roti", category: "Bread", veg: true, desc: "Soft whole wheat roti brushed with butter.", portions: [{ label: "1 Pc", price: 11 }] },
-      { id: "br3", name: "Naan", category: "Bread", veg: true, desc: "Soft and fluffy traditional tandoori naan.", portions: [{ label: "1 Pc", price: 20 }] },
-      { id: "br4", name: "Butter Naan", category: "Bread", veg: true, badge: "Bestseller", desc: "Tandoori naan layered with melted butter — pairs best with Paneer Butter Masala!", portions: [{ label: "1 Pc", price: 25 }] },
-      { id: "br5", name: "Drinking Water", category: "Bread", veg: true, desc: "Chilled packaged drinking water.", portions: [{ label: "1 Bottle", price: 15 }] },
-
-      // NON-VEG
-      { id: "nv1", name: "Chicken Sukka", category: "Non-Veg", veg: false, badge: "Spicy & Rich", desc: "Tender chicken pieces slow-roasted in rich homemade masala.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] }
-    ];
-
-    const CATEGORIES = ["All", "Indo Chinese", "North Indian", "South Indian", "Bread", "Non-Veg"];
     let activeCategory = "All";
     let vegOnly = false;
     let cart = {};
     let isShopOpen = true;
+    let currentClosedMessage = "Ordering hours: 10:00 AM to 10:00 PM IST";
 
     let currentModalItem = null;
     let selectedPortionIndex = 0;
     let modalQuantity = 1;
 
-    // 1. CHECK SHOP STATUS IN INDIAN STANDARD TIME (10:00 AM to 10:00 PM IST)
+    // Fetch live data from backend API
+    async function loadStoreFromServer() {
+      try {
+        const res = await fetch('/api/store');
+        const data = await res.json();
+        if (data.menu) MENU_DATA = data.menu;
+        if (data.categories) CATEGORIES = data.categories;
+        if (data.storeConfig) STORE_CONFIG = data.storeConfig;
+      } catch (e) {
+        console.error("Failed to fetch store data:", e);
+      }
+      checkStoreStatusIST();
+      renderCategories();
+      renderMenu();
+    }
+
+    // Format datetime nicely for customers
+    function formatDateTimeDisplay(isoStr) {
+      if (!isoStr) return "";
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    // Check Default 10 AM - 10 PM IST AND Admin Custom Date/Time Closure
     function checkStoreStatusIST() {
       const now = new Date();
-      // Convert current time to IST (Asia/Kolkata)
+
+      // Get current IST hour
       const istTimeParts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kolkata',
         hour: 'numeric',
         minute: 'numeric',
         hour12: false
       }).formatToParts(now);
-
       const hourPart = istTimeParts.find(p => p.type === 'hour');
       const istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
 
-      // Shop is open from 10:00 (inclusive) up to 22:00 (10:00 PM)
-      isShopOpen = (istHour >= 10 && istHour < 22);
+      const withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
+
+      // Check if current time falls inside Admin's scheduled closed window
+      let withinAdminClosedWindow = false;
+      if (STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil) {
+        const fromTime = new Date(STORE_CONFIG.closedFrom).getTime();
+        const untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
+        const nowTime = now.getTime();
+        if (nowTime >= fromTime && nowTime <= untilTime) {
+          withinAdminClosedWindow = true;
+        }
+      } else if (STORE_CONFIG.closedUntil && !STORE_CONFIG.closedFrom) {
+        const untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
+        if (now.getTime() <= untilTime) {
+          withinAdminClosedWindow = true;
+        }
+      }
 
       const badge = document.getElementById("storeStatusBadge");
       const closedBanner = document.getElementById("closedBanner");
+      const bannerTitle = document.getElementById("closedBannerTitle");
+      const bannerReason = document.getElementById("closedBannerReason");
+      const bannerTime = document.getElementById("closedBannerTime");
       const subtext = document.getElementById("storeTimingSubtext");
 
-      if (isShopOpen) {
-        badge.className = "bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
-        badge.innerText = "Open";
-        subtext.innerText = "Craving Solutions • ⚡ Under 40 Mins";
-        closedBanner.classList.add("hidden");
-      } else {
+      if (STORE_CONFIG.forceClosed || withinAdminClosedWindow) {
+        isShopOpen = false;
+        const reasonText = STORE_CONFIG.closedReason ? `Reason: ${STORE_CONFIG.closedReason}` : "Temporarily closed by store admin.";
+        const untilText = STORE_CONFIG.closedUntil
+          ? `Re-opening on: ${formatDateTimeDisplay(STORE_CONFIG.closedUntil)}`
+          : `Regular hours: 10:00 AM to 10:00 PM IST`;
+
+        currentClosedMessage = `${reasonText}\n${untilText}`;
+        badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+        badge.innerText = "Closed";
+        subtext.innerText = STORE_CONFIG.closedReason || "Temporarily Closed";
+
+        bannerTitle.innerText = "We are temporarily closed!";
+        bannerReason.innerText = reasonText;
+        bannerTime.innerText = STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil
+          ? `Closed from ${formatDateTimeDisplay(STORE_CONFIG.closedFrom)} to ${formatDateTimeDisplay(STORE_CONFIG.closedUntil)}`
+          : untilText;
+        closedBanner.classList.remove("hidden");
+
+        // Clear cart if shop closes
+        cart = {};
+        updateCartUI();
+      } else if (!withinDefaultHours) {
+        isShopOpen = false;
+        currentClosedMessage = "We only accept orders between 10:00 AM and 10:00 PM IST.";
         badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
         badge.innerText = "Closed";
         subtext.innerText = "Opens 10:00 AM – 10:00 PM IST";
+
+        bannerTitle.innerText = "We are currently closed!";
+        bannerReason.innerText = STORE_CONFIG.closedReason ? `Note: ${STORE_CONFIG.closedReason}` : "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
+        bannerTime.innerText = "Ordering hours: 10:00 AM to 10:00 PM IST";
         closedBanner.classList.remove("hidden");
+
+        cart = {};
+        updateCartUI();
+      } else {
+        isShopOpen = true;
+        badge.className = "bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+        badge.innerText = "Open";
+        subtext.innerText = "Craving Solutions • ⚡ 10 AM – 10 PM IST";
+        closedBanner.classList.add("hidden");
       }
     }
 
     function vegBadgeHTML(isVeg) {
       const border = isVeg ? "border-green-600" : "border-red-600";
       const dot = isVeg ? "bg-green-600" : "bg-red-600";
-      return `<span class="inline-flex w-4 h-4 border ${border} items-center justify-center p-0.5 rounded-sm shrink-0">
-                <span class="w-2 h-2 ${dot} rounded-full"></span>
+      return `<span class="inline-flex w-4 h-4 border ${} items-center justify-center p-0.5 rounded-sm shrink-0">
+                <span class="w-2 h-2 ${} rounded-full"></span>
               </span>`;
     }
 
     function renderCategories() {
       document.getElementById("categoryTabs").innerHTML = CATEGORIES.map(cat => `
-        <button onclick="setCategory('${cat}')" 
+        <button onclick="setCategory('${}')" 
           class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ${
             activeCategory === cat ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }">${cat}</button>
+          }">${}</button>
       `).join("");
     }
 
@@ -266,12 +412,10 @@
       renderMenu();
     }
 
-    // 2. CLEAR & BOLD VEG ONLY FILTER UI
     function toggleVegOnly() {
       vegOnly = !vegOnly;
       const btn = document.getElementById("vegToggle");
       const text = document.getElementById("vegToggleText");
-
       if (vegOnly) {
         btn.className = "px-3.5 py-2.5 rounded-xl border-2 border-green-700 bg-green-600 text-white text-xs font-extrabold flex items-center gap-2 transition-all duration-200 shrink-0 shadow-md shadow-green-600/25";
         text.innerText = "Veg Only ✓";
@@ -286,14 +430,11 @@
       return Object.values(cart).filter(e => e.item.id === itemId).reduce((sum, e) => sum + e.qty, 0);
     }
 
-    // Helper for decreasing an item directly from the main menu card
     function handleMenuMinus(itemId) {
       const matchingKeys = Object.keys(cart).filter(k => cart[k].item.id === itemId);
       if (matchingKeys.length === 1) {
-        // Decrease directly if only 1 portion variation is in cart
         changeCartKeyQty(matchingKeys[0], -1);
       } else if (matchingKeys.length > 1) {
-        // If both Half & Full are in cart, open modal so user can pick which one to reduce
         const item = MENU_DATA.find(i => i.id === itemId);
         if (item) openPortionModal(item);
       }
@@ -324,7 +465,7 @@
       container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
         <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <div class="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-2">
-            <h2 class="font-extrabold text-base text-gray-900">${cat}</h2>
+            <h2 class="font-extrabold text-base text-gray-900">${}</h2>
             <span class="text-xs font-bold text-gray-400">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
           </div>
           <div class="divide-y divide-gray-100">
@@ -351,10 +492,15 @@
                   </div>
 
                   <div class="flex flex-col items-center shrink-0">
-                    ${qtyInCart > 0 ? `
+                    ${!isShopOpen ? `
+                      <button onclick="handleAddClick('${item.id}')" 
+                        class="w-24 py-2 px-2 rounded-xl font-extrabold text-xs border-2 bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">
+                        CLOSED
+                      </button>
+                    ` : qtyInCart > 0 ? `
                       <div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">
                         <button onclick="handleMenuMinus('${item.id}')" class="px-1 text-base leading-none hover:text-red-600 transition">−</button>
-                        <span>${qtyInCart}</span>
+                        <span>${}</span>
                         <button onclick="handleAddClick('${item.id}')" class="px-1 text-base leading-none hover:text-green-900 transition">+</button>
                       </div>
                     ` : `
@@ -373,7 +519,13 @@
       `).join("");
     }
 
+    // STRICT CHECK AT START: Prevent adding to cart when shop is closed!
     function handleAddClick(itemId) {
+      checkStoreStatusIST();
+      if (!isShopOpen) {
+        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
+        return;
+      }
       const item = MENU_DATA.find(i => i.id === itemId);
       if (!item) return;
       if (item.portions.length === 1) {
@@ -383,12 +535,10 @@
       }
     }
 
-    // 3. PORTION MODAL WITH ABILITY TO DECREASE TO 0 (REMOVE) OR UPDATE
     function openPortionModal(item) {
       currentModalItem = item;
       const existingIdx = item.portions.findIndex(p => cart[`${item.id}_${p.label}`]);
       selectedPortionIndex = existingIdx !== -1 ? existingIdx : 0;
-
       const key = `${item.id}_${item.portions[selectedPortionIndex].label}`;
       modalQuantity = cart[key] ? cart[key].qty : 1;
 
@@ -404,14 +554,13 @@
       const existingQty = cart[key] ? cart[key].qty : 0;
 
       document.getElementById("modalQty").innerText = modalQuantity;
-
       document.getElementById("modalPortionOptions").innerHTML = currentModalItem.portions.map((p, idx) => {
         const active = idx === selectedPortionIndex;
         const pKey = `${currentModalItem.id}_${p.label}`;
         const inCartQty = cart[pKey] ? cart[pKey].qty : 0;
 
         return `
-          <div onclick="selectPortion(${idx})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
+          <div onclick="selectPortion(${})" class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
             active ? 'border-orange-500 bg-orange-50/60' : 'border-gray-200 hover:bg-gray-50'
           }">
             <div class="flex items-center gap-3">
@@ -437,8 +586,7 @@
       } else {
         confirmBtn.className = "flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md flex justify-between items-center text-sm transition";
         confirmText.innerText = existingQty > 0 ? "Update Cart" : "Add Item to Cart";
-        const total = portion.price * modalQuantity;
-        totalSpan.innerText = `₹${total}`;
+        totalSpan.innerText = `₹${portion.price * modalQuantity}`;
       }
     }
 
@@ -454,16 +602,20 @@
       const portion = currentModalItem.portions[selectedPortionIndex];
       const key = `${currentModalItem.id}_${portion.label}`;
       const existingQty = cart[key] ? cart[key].qty : 0;
-
       const minAllowed = existingQty > 0 ? 0 : 1;
       modalQuantity = Math.max(minAllowed, modalQuantity + delta);
       renderModalPortions();
     }
 
     function confirmModalAdd() {
+      checkStoreStatusIST();
+      if (!isShopOpen) {
+        closePortionModal();
+        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
+        return;
+      }
       const portion = currentModalItem.portions[selectedPortionIndex];
       const key = `${currentModalItem.id}_${portion.label}`;
-
       if (modalQuantity <= 0) {
         delete cart[key];
       } else {
@@ -500,9 +652,8 @@
       const entries = Object.values(cart);
       const count = entries.reduce((s, e) => s + e.qty, 0);
       const total = entries.reduce((s, e) => s + e.qty * e.portion.price, 0);
-
       const bar = document.getElementById("stickyCartBar");
-      if (count > 0) {
+      if (count > 0 && isShopOpen) {
         bar.classList.remove("hidden");
         document.getElementById("cartCountBadge").innerText = `${count} ITEM${count > 1 ? 'S' : ''}`;
         document.getElementById("cartTotalBar").innerText = `₹${total}`;
@@ -540,11 +691,11 @@
             </div>
             <div class="flex items-center gap-3">
               <div class="flex items-center border-2 border-green-600 bg-white rounded-xl px-2.5 py-1 gap-3 font-extrabold text-xs">
-                <button onclick="changeCartKeyQty('${key}', -1)" class="text-green-700 text-sm">−</button>
+                <button onclick="changeCartKeyQty('${}', -1)" class="text-green-700 text-sm">−</button>
                 <span>${e.qty}</span>
-                <button onclick="changeCartKeyQty('${key}', 1)" class="text-green-700 text-sm">+</button>
+                <button onclick="changeCartKeyQty('${}', 1)" class="text-green-700 text-sm">+</button>
               </div>
-              <div class="font-extrabold text-sm w-12 text-right">₹${sub}</div>
+              <div class="font-extrabold text-sm w-12 text-right">₹${}</div>
             </div>
           </div>
         `;
@@ -555,23 +706,21 @@
     function checkoutWhatsApp() {
       checkStoreStatusIST();
       if (!isShopOpen) {
-        alert("Sorry, Foody Bites is currently CLOSED. Ordering hours are 10:00 AM to 10:00 PM IST.");
+        alert(`🚫 Sorry, Foody Bites is currently CLOSED!\n\n${currentClosedMessage}`);
         return;
       }
-
       const name = document.getElementById("custName").value.trim();
       const address = document.getElementById("custAddress").value.trim();
       if (!name || !address) {
         alert("Please enter your Name and Delivery Address!");
         return;
       }
-
       const entries = Object.values(cart);
       let total = 0;
       const lines = entries.map((e, idx) => {
         const sub = e.qty * e.portion.price;
         total += sub;
-        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${sub}`;
+        return `${idx + 1}. *${e.item.name}* [${e.portion.label}] x ${e.qty} = ₹${}`;
       }).join("\n");
 
       const text = `*🍔 NEW ORDER — FOODY BITES*\n\n` +
@@ -585,11 +734,151 @@
       window.open(`https://wa.me/918987715159?text=${encodeURIComponent(text)}`, "_blank");
     }
 
+    // ================= ADMIN FUNCTIONS =================
+    function openAdminModal() {
+      document.getElementById("admForceClosed").checked = !!STORE_CONFIG.forceClosed;
+      document.getElementById("admClosedFrom").value = STORE_CONFIG.closedFrom || "";
+      document.getElementById("admClosedUntil").value = STORE_CONFIG.closedUntil || "";
+      document.getElementById("admClosedReason").value = STORE_CONFIG.closedReason || "";
+      renderAdminMenuList();
+      document.getElementById("adminModal").classList.remove("hidden");
+    }
+
+    function closeAdminModal() {
+      document.getElementById("adminModal").classList.add("hidden");
+    }
+
+    function clearClosureSchedule() {
+      document.getElementById("admForceClosed").checked = false;
+      document.getElementById("admClosedFrom").value = "";
+      document.getElementById("admClosedUntil").value = "";
+      document.getElementById("admClosedReason").value = "";
+    }
+
+    function renderAdminMenuList() {
+      const list = document.getElementById("adminMenuList");
+      list.innerHTML = MENU_DATA.map((item, idx) => `
+        <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2">
+          <div class="flex justify-between items-center">
+            <span class="font-extrabold text-gray-900 text-xs">${item.name} <span class="text-gray-400 font-normal">(${item.category})</span></span>
+            <button type="button" onclick="adminDeleteDish(${})" class="text-red-600 font-extrabold text-[11px] hover:underline">🗑 Delete</button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${item.portions.map((p, pIdx) => `
+              <div class="flex items-center gap-1 bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                <span class="font-bold text-gray-600">${p.label}: ₹</span>
+                <input type="number" value="${p.price}" onchange="adminUpdatePrice(${}, ${pIdx}, this.value)" class="w-14 font-extrabold text-orange-600 focus:outline-none" />
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function adminUpdatePrice(itemIdx, portionIdx, newPrice) {
+      const val = parseInt(newPrice, 10);
+      if (!isNaN(val) && val > 0) {
+        MENU_DATA[itemIdx].portions[portionIdx].price = val;
+      }
+    }
+
+    function adminDeleteDish(itemIdx) {
+      if (confirm(`Delete "${MENU_DATA[itemIdx].name}" from menu?`)) {
+        MENU_DATA.splice(itemIdx, 1);
+        renderAdminMenuList();
+      }
+    }
+
+    function adminAddDish() {
+      const name = document.getElementById("newDishName").value.trim();
+      const category = document.getElementById("newDishCat").value;
+      const veg = document.getElementById("newDishVeg").checked;
+      const badge = document.getElementById("newDishBadge").value.trim();
+      const desc = document.getElementById("newDishDesc").value.trim() || "Freshly prepared dish.";
+      const portionsRaw = document.getElementById("newDishPortions").value.trim();
+
+      if (!name || !portionsRaw) {
+        alert("Please enter Dish Name and Portions (e.g. Half:50, Full:90)!");
+        return;
+      }
+
+      const portions = portionsRaw.split(",").map(part => {
+        const [label, priceStr] = part.split(":").map(s => s.trim());
+        return { label: label || "Full", price: parseInt(priceStr, 10) || 50 };
+      });
+
+      const newItem = {
+        id: "dish_" + Date.now(),
+        name,
+        category,
+        veg,
+        desc,
+        portions
+      };
+      if (badge) newItem.badge = badge;
+
+      MENU_DATA.push(newItem);
+      document.getElementById("newDishName").value = "";
+      document.getElementById("newDishBadge").value = "";
+      document.getElementById("newDishDesc").value = "";
+      document.getElementById("newDishPortions").value = "";
+      renderAdminMenuList();
+      alert(`Added "${name}" to list! Click "Save & Publish Live to Store" below to make it live.`);
+    }
+
+    async function saveAdminChanges() {
+      const pwd = document.getElementById("adminPwd").value;
+      if (!pwd) {
+        alert("Please enter your Admin Secret Password at the top!");
+        return;
+      }
+
+      const updatedConfig = {
+        openHourIST: 10,
+        closeHourIST: 22,
+        forceClosed: document.getElementById("admForceClosed").checked,
+        closedFrom: document.getElementById("admClosedFrom").value,
+        closedUntil: document.getElementById("admClosedUntil").value,
+        closedReason: document.getElementById("admClosedReason").value.trim()
+      };
+
+      const btn = document.getElementById("adminSaveBtn");
+      btn.innerText = "Saving to Cloud...";
+
+      try {
+        const res = await fetch('/api/admin/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': pwd
+          },
+          body: JSON.stringify({
+            storeConfig: updatedConfig,
+            menu: MENU_DATA
+          })
+        });
+        const result = await res.json();
+        if (!res.ok) {
+          alert("❌ Error: " + (result.error || "Failed to save"));
+          btn.innerText = "💾 Save & Publish Live to Store";
+          return;
+        }
+        STORE_CONFIG = result.data.storeConfig;
+        MENU_DATA = result.data.menu;
+        checkStoreStatusIST();
+        renderMenu();
+        closeAdminModal();
+        alert("✅ Store updated live for all customers!");
+      } catch (err) {
+        alert("Network error while saving changes.");
+      } finally {
+        btn.innerText = "💾 Save & Publish Live to Store";
+      }
+    }
+
     // Initialize App
-    checkStoreStatusIST();
-    setInterval(checkStoreStatusIST, 60000); // Re-check IST time every minute
-    renderCategories();
-    renderMenu();
+    loadStoreFromServer();
+    setInterval(checkStoreStatusIST, 30000);
   </script>
 </body>
 </html>
