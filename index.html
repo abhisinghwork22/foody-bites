@@ -16,7 +16,7 @@
 </head>
 <body class="pb-32 text-gray-800">
 
-  <!-- Top Sticky Header -->
+  <!-- Top Sticky Header (No Admin Gear Icon for Customers!) -->
   <header class="bg-white sticky top-0 z-30 shadow-sm border-b border-gray-100">
     <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -165,7 +165,7 @@
     </div>
   </div>
 
-  <!-- ================= ADMIN CONTROL PANEL MODAL ================= -->
+  <!-- ================= ADMIN CONTROL PANEL MODAL (Accessible only via /admin) ================= -->
   <div id="adminModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-3">
     <div class="bg-white w-full max-w-lg rounded-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 bg-gray-900 text-white flex justify-between items-center">
@@ -185,31 +185,31 @@
 
         <!-- Section 1: Store Closure & Timing Control -->
         <div class="border border-gray-200 rounded-2xl p-3.5 space-y-3 bg-gray-50">
-          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">🕙 Store Availability & Custom Closure</h4>
+          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">🕙 Store Availability & Temporary Closure</h4>
           
-          <label class="flex items-center gap-2 font-bold text-red-700 cursor-pointer">
-            <input type="checkbox" id="admForceClosed" class="w-4 h-4 accent-red-600" />
-            <span>Force Close Store Immediately (Override 10 AM - 10 PM)</span>
-          </label>
-
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label class="block font-bold text-gray-600 text-[11px] mb-1">Close From (Date & Time)</label>
               <input type="datetime-local" id="admClosedFrom" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
             </div>
             <div>
-              <label class="block font-bold text-gray-600 text-[11px] mb-1">Close Until / Re-opens At</label>
+              <label class="block font-bold text-gray-600 text-[11px] mb-1">Close Until (Auto-Reopens At)</label>
               <input type="datetime-local" id="admClosedUntil" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
             </div>
           </div>
 
           <div>
             <label class="block font-bold text-gray-600 text-[11px] mb-1">Closure Reason (Shown on First Page Banner)</label>
-            <input type="text" id="admClosedReason" placeholder="e.g. Closed for family function / Back at 6 PM!" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
+            <input type="text" id="admClosedReason" placeholder="e.g. Kitchen maintenance / Back at 6 PM!" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
           </div>
 
-          <button type="button" onclick="clearClosureSchedule()" class="text-[11px] text-blue-600 font-extrabold underline">
-            Reset to Default Hours (10 AM – 10 PM IST Open)
+          <label class="flex items-center gap-2 font-bold text-red-700 cursor-pointer pt-1">
+            <input type="checkbox" id="admForceClosed" class="w-4 h-4 accent-red-600" />
+            <span>Close Indefinitely (No end time — stays closed until unchecked)</span>
+          </label>
+
+          <button type="button" onclick="clearClosureSchedule()" class="text-[11px] text-blue-600 font-extrabold underline block pt-1">
+            ↺ Clear & Reset to Default Hours (10 AM – 10 PM IST Open)
           </button>
         </div>
 
@@ -239,10 +239,13 @@
           </button>
         </div>
 
-        <!-- Section 3: Edit Prices or Delete Existing Menu Items -->
+        <!-- Section 3: Edit Prices, Disable/Enable, or Delete Existing Menu Items -->
         <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5">
-          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">✏️ Edit Prices / Delete Dishes</h4>
-          <div id="adminMenuList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+          <div class="flex justify-between items-center border-b pb-1.5">
+            <h4 class="font-extrabold text-gray-900 text-sm">✏️ Edit Prices / Disable / Delete Dishes</h4>
+            <span class="text-[10px] text-gray-500 font-bold">Tap status to Enable/Disable</span>
+          </div>
+          <div id="adminMenuList" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
@@ -256,21 +259,21 @@
 
   <script>
     var DEFAULT_FALLBACK_MENU = [
-      { id: "ic1", name: "Chowmein", category: "Indo Chinese", veg: true, desc: "Street-style wok-tossed noodles with crunchy julienned veggies.", portions: [{ label: "Half", price: 30 }, { label: "Full", price: 50 }] },
-      { id: "ic2", name: "Veg Fried Rice", category: "Indo Chinese", veg: true, desc: "Fragrant rice stir-fried with fresh garden vegetables & Indo-Chinese sauces.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
-      { id: "ic3", name: "Paneer Chilli", category: "Indo Chinese", veg: true, badge: "Popular", desc: "Golden fried paneer cubes tossed in spicy garlic-chilli sauce with capsicum.", portions: [{ label: "Half", price: 80 }, { label: "Full", price: 150 }] },
-      { id: "ic4", name: "Soya Chilli", category: "Indo Chinese", veg: true, desc: "Juicy soya chunks coated in tangy, spicy Indo-Chinese chilli glaze.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
-      { id: "ic5", name: "Manchurian", category: "Indo Chinese", veg: true, desc: "Crispy mixed-veg dumplings tossed in savoury coriander-garlic Manchurian sauce.", portions: [{ label: "Half", price: 55 }, { label: "Full", price: 100 }] },
-      { id: "ni1", name: "Paneer Butter Masala", category: "North Indian", veg: true, badge: "Best with Naan!", desc: "Creamy, rich & irresistible cottage cheese simmered in buttery tomato-cashew gravy.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] },
-      { id: "ni2", name: "Mix Dal Tadka", category: "North Indian", veg: true, desc: "Homestyle protein-rich yellow & mixed lentils tempered with aromatic spices.", portions: [{ label: "Quarter", price: 50 }, { label: "Half", price: 90 }, { label: "Full", price: 170 }] },
-      { id: "si1", name: "Masala Dosa", category: "South Indian", veg: true, desc: "Crispy golden rice crepe stuffed with spiced potato mash, served with chutney & sambar.", portions: [{ label: "Full", price: 45 }] },
-      { id: "si2", name: "Butter Masala Dosa", category: "South Indian", veg: true, badge: "Must Try", desc: "Crispy masala dosa roasted generously in rich butter.", portions: [{ label: "Full", price: 60 }] },
-      { id: "br1", name: "Roti", category: "Bread", veg: true, desc: "Freshly made whole wheat tawa/tandoori roti.", portions: [{ label: "1 Pc", price: 7 }] },
-      { id: "br2", name: "Butter Roti", category: "Bread", veg: true, desc: "Soft whole wheat roti brushed with butter.", portions: [{ label: "1 Pc", price: 11 }] },
-      { id: "br3", name: "Naan", category: "Bread", veg: true, desc: "Soft and fluffy traditional tandoori naan.", portions: [{ label: "1 Pc", price: 20 }] },
-      { id: "br4", name: "Butter Naan", category: "Bread", veg: true, badge: "Bestseller", desc: "Tandoori naan layered with melted butter — pairs best with Paneer Butter Masala!", portions: [{ label: "1 Pc", price: 25 }] },
-      { id: "br5", name: "Drinking Water", category: "Bread", veg: true, desc: "Chilled packaged drinking water.", portions: [{ label: "1 Bottle", price: 15 }] },
-      { id: "nv1", name: "Chicken Sukka", category: "Non-Veg", veg: false, badge: "Spicy & Rich", desc: "Tender chicken pieces slow-roasted in rich homemade masala.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] }
+      { id: "ic1", name: "Chowmein", category: "Indo Chinese", veg: true, available: true, desc: "Street-style wok-tossed noodles with crunchy julienned veggies.", portions: [{ label: "Half", price: 30 }, { label: "Full", price: 50 }] },
+      { id: "ic2", name: "Veg Fried Rice", category: "Indo Chinese", veg: true, available: true, desc: "Fragrant rice stir-fried with fresh garden vegetables & Indo-Chinese sauces.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic3", name: "Paneer Chilli", category: "Indo Chinese", veg: true, available: true, badge: "Popular", desc: "Golden fried paneer cubes tossed in spicy garlic-chilli sauce with capsicum.", portions: [{ label: "Half", price: 80 }, { label: "Full", price: 150 }] },
+      { id: "ic4", name: "Soya Chilli", category: "Indo Chinese", veg: true, available: true, desc: "Juicy soya chunks coated in tangy, spicy Indo-Chinese chilli glaze.", portions: [{ label: "Half", price: 40 }, { label: "Full", price: 70 }] },
+      { id: "ic5", name: "Manchurian", category: "Indo Chinese", veg: true, available: true, desc: "Crispy mixed-veg dumplings tossed in savoury coriander-garlic Manchurian sauce.", portions: [{ label: "Half", price: 55 }, { label: "Full", price: 100 }] },
+      { id: "ni1", name: "Paneer Butter Masala", category: "North Indian", veg: true, available: true, badge: "Best with Naan!", desc: "Creamy, rich & irresistible cottage cheese simmered in buttery tomato-cashew gravy.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] },
+      { id: "ni2", name: "Mix Dal Tadka", category: "North Indian", veg: true, available: true, desc: "Homestyle protein-rich yellow & mixed lentils tempered with aromatic spices.", portions: [{ label: "Quarter", price: 50 }, { label: "Half", price: 90 }, { label: "Full", price: 170 }] },
+      { id: "si1", name: "Masala Dosa", category: "South Indian", veg: true, available: true, desc: "Crispy golden rice crepe stuffed with spiced potato mash, served with chutney & sambar.", portions: [{ label: "Full", price: 45 }] },
+      { id: "si2", name: "Butter Masala Dosa", category: "South Indian", veg: true, available: true, badge: "Must Try", desc: "Crispy masala dosa roasted generously in rich butter.", portions: [{ label: "Full", price: 60 }] },
+      { id: "br1", name: "Roti", category: "Bread", veg: true, available: true, desc: "Freshly made whole wheat tawa/tandoori roti.", portions: [{ label: "1 Pc", price: 7 }] },
+      { id: "br2", name: "Butter Roti", category: "Bread", veg: true, available: true, desc: "Soft whole wheat roti brushed with butter.", portions: [{ label: "1 Pc", price: 11 }] },
+      { id: "br3", name: "Naan", category: "Bread", veg: true, available: true, desc: "Soft and fluffy traditional tandoori naan.", portions: [{ label: "1 Pc", price: 20 }] },
+      { id: "br4", name: "Butter Naan", category: "Bread", veg: true, available: true, badge: "Bestseller", desc: "Tandoori naan layered with melted butter — pairs best with Paneer Butter Masala!", portions: [{ label: "1 Pc", price: 25 }] },
+      { id: "br5", name: "Drinking Water", category: "Bread", veg: true, available: true, desc: "Chilled packaged drinking water.", portions: [{ label: "1 Bottle", price: 15 }] },
+      { id: "nv1", name: "Chicken Sukka", category: "Non-Veg", veg: false, available: true, badge: "Spicy & Rich", desc: "Tender chicken pieces slow-roasted in rich homemade masala.", portions: [{ label: "Quarter", price: 110 }, { label: "Half", price: 205 }, { label: "Full", price: 390 }] }
     ];
 
     var MENU_DATA = DEFAULT_FALLBACK_MENU.slice();
@@ -311,15 +314,26 @@
       renderMenu();
     }
 
+    function parseISTDateTime(dtStr) {
+      if (!dtStr) return null;
+      if (dtStr.length === 16) {
+        return new Date(dtStr + ":00+05:30");
+      }
+      return new Date(dtStr);
+    }
+
     function formatDateTimeDisplay(isoStr) {
       if (!isoStr) return "";
-      var d = new Date(isoStr);
-      if (isNaN(d.getTime())) return isoStr;
-      return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+      var d = parseISTDateTime(isoStr);
+      if (!d || isNaN(d.getTime())) return isoStr;
+      return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
     }
 
     function checkStoreStatusIST() {
+      var prevStatus = isShopOpen;
       var now = new Date();
+      var nowTime = now.getTime();
+
       var istTimeParts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kolkata',
         hour: 'numeric',
@@ -333,16 +347,21 @@
       var withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
 
       var withinAdminClosedWindow = false;
-      if (STORE_CONFIG.closedFrom && STORE_CONFIG.closedUntil) {
-        var fromTime = new Date(STORE_CONFIG.closedFrom).getTime();
-        var untilTime = new Date(STORE_CONFIG.closedUntil).getTime();
-        var nowTime = now.getTime();
-        if (nowTime >= fromTime && nowTime <= untilTime) {
-          withinAdminClosedWindow = true;
-        }
-      } else if (STORE_CONFIG.closedUntil && !STORE_CONFIG.closedFrom) {
-        var untilOnly = new Date(STORE_CONFIG.closedUntil).getTime();
-        if (now.getTime() <= untilOnly) {
+
+      if (STORE_CONFIG.closedUntil) {
+        var untilDate = parseISTDateTime(STORE_CONFIG.closedUntil);
+        var untilTime = untilDate ? untilDate.getTime() : 0;
+        var fromDate = STORE_CONFIG.closedFrom ? parseISTDateTime(STORE_CONFIG.closedFrom) : null;
+        var fromTime = fromDate ? fromDate.getTime() : 0;
+
+        if (nowTime > untilTime) {
+          // End time has passed! Automatically wipe out temporary closure settings & revert to 10 AM - 10 PM!
+          STORE_CONFIG.forceClosed = false;
+          STORE_CONFIG.closedFrom = "";
+          STORE_CONFIG.closedUntil = "";
+          STORE_CONFIG.closedReason = "";
+          withinAdminClosedWindow = false;
+        } else if (!fromTime || nowTime >= fromTime) {
           withinAdminClosedWindow = true;
         }
       }
@@ -364,7 +383,9 @@
         currentClosedMessage = reasonText + "\n" + untilText;
         badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
         badge.innerText = "Closed";
-        subtext.innerText = STORE_CONFIG.closedReason || "Temporarily Closed";
+        subtext.innerText = STORE_CONFIG.closedReason
+          ? ("Closed: " + STORE_CONFIG.closedReason)
+          : "Temporarily Closed";
 
         bannerTitle.innerText = "We are temporarily closed!";
         bannerReason.innerText = reasonText;
@@ -383,7 +404,7 @@
         subtext.innerText = "Opens 10:00 AM – 10:00 PM IST";
 
         bannerTitle.innerText = "We are currently closed!";
-        bannerReason.innerText = STORE_CONFIG.closedReason ? ("Note: " + STORE_CONFIG.closedReason) : "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
+        bannerReason.innerText = "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
         bannerTime.innerText = "Ordering hours: 10:00 AM to 10:00 PM IST";
         closedBanner.classList.remove("hidden");
 
@@ -395,6 +416,10 @@
         badge.innerText = "Open";
         subtext.innerText = "Craving Solutions • ⚡ 10 AM – 10 PM IST";
         closedBanner.classList.add("hidden");
+      }
+
+      if (prevStatus !== isShopOpen) {
+        renderMenu();
       }
     }
 
@@ -492,14 +517,17 @@
 
         for (var i = 0; i < items.length; i++) {
           var item = items[i];
+          var isAvailable = (item.available !== false);
           var multi = item.portions.length > 1;
           var qtyInCart = getItemTotalQty(item.id);
 
-          out += '<div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3">';
+          out += '<div class="py-3.5 first:pt-1 last:pb-1 flex justify-between items-start gap-3 ' + (!isAvailable ? 'opacity-60' : '') + '">';
           out += '<div class="flex-1 pr-2">';
           out += '<div class="flex items-center gap-1.5 flex-wrap">' + vegBadgeHTML(item.veg);
           out += '<h3 class="font-extrabold text-gray-900 text-sm sm:text-base">' + item.name + '</h3>';
-          if (item.badge) {
+          if (!isAvailable) {
+            out += '<span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Temporarily Unavailable</span>';
+          } else if (item.badge) {
             out += '<span class="bg-orange-100 text-orange-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md">' + item.badge + '</span>';
           }
           out += '</div><div class="flex flex-wrap gap-1.5 mt-1.5">';
@@ -511,7 +539,9 @@
           out += '</div><p class="text-xs text-gray-500 mt-1.5 leading-relaxed">' + item.desc + '</p></div>';
 
           out += '<div class="flex flex-col items-center shrink-0">';
-          if (!isShopOpen) {
+          if (!isAvailable) {
+            out += '<button disabled class="w-24 py-2 px-2 rounded-xl font-extrabold text-xs border-2 bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">SOLD OUT</button>';
+          } else if (!isShopOpen) {
             out += '<button onclick="handleAddClick(\'' + item.id + '\')" class="w-24 py-2 px-2 rounded-xl font-extrabold text-xs border-2 bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">CLOSED</button>';
           } else if (qtyInCart > 0) {
             out += '<div class="w-24 py-1.5 px-2.5 rounded-xl border-2 border-green-600 bg-green-50 flex items-center justify-between font-extrabold text-sm text-green-700 shadow-sm">' +
@@ -522,7 +552,7 @@
           } else {
             out += '<button onclick="handleAddClick(\'' + item.id + '\')" class="w-24 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm border-2 bg-white border-gray-200 text-green-600 hover:border-green-600 shadow-sm transition">ADD +</button>';
           }
-          if (multi) {
+          if (multi && isAvailable) {
             out += '<span class="text-[10px] text-gray-400 font-semibold mt-1">Customisable</span>';
           }
           out += '</div></div>';
@@ -539,7 +569,7 @@
         return;
       }
       var item = MENU_DATA.find(function(i) { return i.id === itemId; });
-      if (!item) return;
+      if (!item || item.available === false) return;
       if (item.portions.length === 1) {
         addToCart(item, item.portions[0], 1);
       } else {
@@ -756,6 +786,7 @@
 
     // ================= ADMIN FUNCTIONS =================
     function openAdminModal() {
+      checkStoreStatusIST(); // Expire old dates first so form shows clean values!
       document.getElementById("admForceClosed").checked = !!STORE_CONFIG.forceClosed;
       document.getElementById("admClosedFrom").value = STORE_CONFIG.closedFrom || "";
       document.getElementById("admClosedUntil").value = STORE_CONFIG.closedUntil || "";
@@ -783,10 +814,19 @@
       var html = "";
       for (var idx = 0; idx < MENU_DATA.length; idx++) {
         var item = MENU_DATA[idx];
-        html += '<div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2">' +
-                  '<div class="flex justify-between items-center">' +
+        var isAvail = (item.available !== false);
+        var statusBtnClass = isAvail
+          ? "bg-green-100 text-green-800 border-green-300"
+          : "bg-red-100 text-red-700 border-red-300";
+        var statusBtnText = isAvail ? "✅ Enabled" : "🚫 Disabled";
+
+        html += '<div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2 ' + (!isAvail ? 'opacity-75' : '') + '">' +
+                  '<div class="flex justify-between items-center gap-2">' +
                     '<span class="font-extrabold text-gray-900 text-xs">' + item.name + ' <span class="text-gray-400 font-normal">(' + item.category + ')</span></span>' +
-                    '<button type="button" onclick="adminDeleteDish(' + idx + ')" class="text-red-600 font-extrabold text-[11px] hover:underline">🗑 Delete</button>' +
+                    '<div class="flex items-center gap-2 shrink-0">' +
+                      '<button type="button" onclick="adminToggleAvailable(' + idx + ')" class="px-2 py-0.5 rounded-lg border font-extrabold text-[10px] ' + statusBtnClass + '">' + statusBtnText + '</button>' +
+                      '<button type="button" onclick="adminDeleteDish(' + idx + ')" class="text-red-600 font-extrabold text-[11px] hover:underline">🗑 Delete</button>' +
+                    '</div>' +
                   '</div>' +
                   '<div class="flex flex-wrap gap-2">';
         for (var pIdx = 0; pIdx < item.portions.length; pIdx++) {
@@ -801,6 +841,12 @@
       list.innerHTML = html;
     }
 
+    function adminToggleAvailable(itemIdx) {
+      var current = (MENU_DATA[itemIdx].available !== false);
+      MENU_DATA[itemIdx].available = !current;
+      renderAdminMenuList();
+    }
+
     function adminUpdatePrice(itemIdx, portionIdx, newPrice) {
       var val = parseInt(newPrice, 10);
       if (!isNaN(val) && val > 0) {
@@ -809,7 +855,7 @@
     }
 
     function adminDeleteDish(itemIdx) {
-      if (confirm('Delete "' + MENU_DATA[itemIdx].name + '" from menu?')) {
+      if (confirm('Permanently delete "' + MENU_DATA[itemIdx].name + '" from menu? (Tip: Use "✅ Enabled / 🚫 Disabled" to temporarily hide it instead!)')) {
         MENU_DATA.splice(itemIdx, 1);
         renderAdminMenuList();
       }
@@ -840,6 +886,7 @@
         name: name,
         category: category,
         veg: veg,
+        available: true,
         desc: desc,
         portions: portions
       };
@@ -914,7 +961,8 @@
         openAdminModal();
       }
     });
-    setInterval(checkStoreStatusIST, 30000);
+    // Check every 15 seconds so expired temporary closures auto-reopen right away!
+    setInterval(checkStoreStatusIST, 15000);
   </script>
 </body>
 </html>
