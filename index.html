@@ -6,12 +6,16 @@
   <title>Foody Bites — Craving Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Leaflet Interactive Map CSS & JS (100% Free, No API Key Needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f5f7; -webkit-tap-highlight-color: transparent; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .animate-slide-up { animation: slideUp 0.22s ease-out; }
+    #mapPicker { height: 190px; width: 100%; border-radius: 0.75rem; z-index: 10; }
   </style>
 </head>
 <body class="pb-32 text-gray-800">
@@ -140,26 +144,72 @@
     </div>
   </div>
 
-  <!-- Checkout Cart Drawer -->
+  <!-- Checkout Cart Drawer (Now with Interactive Map, GPS, Search & Landmark!) -->
   <div id="cartDrawer" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this) closeCartDrawer()">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-slide-up">
-      <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[94vh] flex flex-col overflow-hidden shadow-2xl animate-slide-up">
+      <div class="p-3.5 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
         <div>
           <h3 class="font-extrabold text-base text-gray-900">Your Order Basket 🛒</h3>
-          <p class="text-xs text-gray-500">Guaranteed delivery under 40 minutes</p>
+          <p class="text-xs text-gray-500">Pin your location & confirm delivery details</p>
         </div>
         <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold">✕</button>
       </div>
-      <div id="cartItemsList" class="p-4 overflow-y-auto space-y-2.5 flex-1"></div>
-      <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-2.5">
-        <input id="custName" type="text" placeholder="Your Name *" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
-        <textarea id="custAddress" rows="2" placeholder="Complete Delivery Address / Landmark *" class="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"></textarea>
-        <div class="flex justify-between items-center pt-1 font-extrabold text-base border-t border-gray-200">
+
+      <!-- Scrollable Body: Cart Items + Map Location Picker + Address Inputs -->
+      <div class="p-4 overflow-y-auto space-y-4 flex-1">
+        <!-- Cart Items -->
+        <div id="cartItemsList" class="space-y-2"></div>
+
+        <!-- Delivery Details & Map Section -->
+        <div class="bg-gray-50 p-3.5 rounded-2xl border border-gray-200 space-y-3">
+          <h4 class="font-extrabold text-xs uppercase tracking-wider text-gray-700">📍 Delivery Location & Address</h4>
+
+          <input id="custName" type="text" placeholder="Your Name *" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
+
+          <!-- GPS Button + Map Search Bar -->
+          <div class="space-y-2">
+            <button type="button" onclick="useCurrentGPSLocation()" id="gpsBtn" class="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-300 font-extrabold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+              <span>🎯 Use My Current GPS Location</span>
+            </button>
+
+            <div class="flex gap-1.5">
+              <input id="mapSearchInput" type="text" placeholder="Search area, society, street..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchLocationOnMap();}" class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
+              <button type="button" onclick="searchLocationOnMap()" id="mapSearchBtn" class="bg-gray-900 text-white px-3 py-1.5 rounded-xl text-xs font-extrabold hover:bg-black shrink-0">
+                Search
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Map Container -->
+          <div class="relative">
+            <div id="mapPicker" class="border-2 border-gray-300 shadow-inner"></div>
+            <p class="text-[10px] text-gray-500 font-semibold mt-1 text-center">
+              👆 Tap anywhere on the map or drag the blue pin to adjust exact spot
+            </p>
+          </div>
+
+          <!-- Detected Map Area (Editable) -->
+          <div>
+            <label class="block text-[11px] font-extrabold text-gray-600 mb-1">Pinned Map Location / Area *</label>
+            <textarea id="custAddress" rows="2" placeholder="Click 'Use Current GPS Location', search above, or type your area..." class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"></textarea>
+          </div>
+
+          <!-- House / Flat / Landmark Input Box -->
+          <div>
+            <label class="block text-[11px] font-extrabold text-gray-600 mb-1">House / Flat No. & Nearby Landmark *</label>
+            <input id="custLandmark" type="text" placeholder="e.g. Flat 204, Block B, Near City Mall / Temple" class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky Footer inside Drawer: Total & WhatsApp Button -->
+      <div class="p-3.5 bg-white border-t border-gray-200 space-y-2.5 shrink-0">
+        <div class="flex justify-between items-center font-extrabold text-base">
           <span>To Pay</span>
           <span id="drawerGrandTotal" class="text-orange-600 text-lg">₹0</span>
         </div>
         <button type="button" onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
-          <span>📲 Send Order on WhatsApp</span>
+          <span>📲 Send Order with Map Location on WhatsApp</span>
         </button>
       </div>
     </div>
@@ -297,6 +347,12 @@
     var selectedPortionIndex = 0;
     var modalQuantity = 1;
 
+    // Interactive Map Variables
+    var mapInstance = null;
+    var mapMarker = null;
+    var selectedLat = null;
+    var selectedLng = null;
+
     async function loadStoreFromServer() {
       try {
         var res = await fetch('/api/store');
@@ -345,7 +401,6 @@
       var istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
 
       var withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
-
       var withinAdminClosedWindow = false;
 
       if (STORE_CONFIG.closedUntil) {
@@ -355,7 +410,6 @@
         var fromTime = fromDate ? fromDate.getTime() : 0;
 
         if (nowTime > untilTime) {
-          // End time has passed! Automatically wipe out temporary closure settings & revert to 10 AM - 10 PM!
           STORE_CONFIG.forceClosed = false;
           STORE_CONFIG.closedFrom = "";
           STORE_CONFIG.closedUntil = "";
@@ -710,9 +764,126 @@
       }
     }
 
+    // ================= INTERACTIVE MAP & GPS LOCATION FUNCTIONS =================
+    function initOrRefreshMap() {
+      // Default center (India - Ranchi/Jharkhand or central India) until user clicks GPS or searches
+      var defaultLat = selectedLat || 23.3441;
+      var defaultLng = selectedLng || 85.3096;
+
+      if (!mapInstance) {
+        mapInstance = L.map('mapPicker').setView([defaultLat, defaultLng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstance);
+
+        mapMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(mapInstance);
+
+        // When user drags the pin
+        mapMarker.on('dragend', function(e) {
+          var pos = mapMarker.getLatLng();
+          setPinnedLocation(pos.lat, pos.lng, true);
+        });
+
+        // When user taps anywhere on the map
+        mapInstance.on('click', function(e) {
+          mapMarker.setLatLng(e.latlng);
+          setPinnedLocation(e.latlng.lat, e.latlng.lng, true);
+        });
+      }
+
+      setTimeout(function() {
+        mapInstance.invalidateSize();
+      }, 200);
+    }
+
+    async function setPinnedLocation(lat, lng, fetchAddress) {
+      selectedLat = Number(lat).toFixed(6);
+      selectedLng = Number(lng).toFixed(6);
+
+      if (mapInstance && mapMarker) {
+        mapMarker.setLatLng([lat, lng]);
+        mapInstance.panTo([lat, lng]);
+      }
+
+      if (fetchAddress) {
+        var addrBox = document.getElementById("custAddress");
+        addrBox.placeholder = "Fetching street address from map pin...";
+        try {
+          var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + lat + "&lon=" + lng;
+          var res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+          if (res.ok) {
+            var data = await res.json();
+            if (data && data.display_name) {
+              addrBox.value = data.display_name;
+            }
+          }
+        } catch (err) {
+          console.error("Reverse geocode error:", err);
+        }
+      }
+    }
+
+    function useCurrentGPSLocation() {
+      var btn = document.getElementById("gpsBtn");
+      if (!navigator.geolocation) {
+        alert("GPS Geolocation is not supported by your browser. Please search or tap on the map!");
+        return;
+      }
+
+      btn.innerText = "📡 Detecting your GPS location...";
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          var lat = position.coords.latitude;
+          var lng = position.coords.longitude;
+          if (mapInstance) {
+            mapInstance.setView([lat, lng], 17);
+          }
+          setPinnedLocation(lat, lng, true);
+          btn.innerText = "✅ GPS Location Pinned! (Drag pin to adjust)";
+        },
+        function(err) {
+          btn.innerText = "🎯 Use My Current GPS Location";
+          alert("Could not get GPS location (please allow Location Permission in your browser, or use the Search box below!).");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    async function searchLocationOnMap() {
+      var query = document.getElementById("mapSearchInput").value.trim();
+      var btn = document.getElementById("mapSearchBtn");
+      if (!query) {
+        alert("Type an area, society, or street name to search on the map!");
+        return;
+      }
+      btn.innerText = "...";
+      try {
+        var url = "https://nominatim.openstreetmap.org/search?format=jsonv2&q=" + encodeURIComponent(query) + "&countrycodes=in&limit=1";
+        var res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        var results = await res.json();
+        if (results && results.length > 0) {
+          var lat = parseFloat(results[0].lat);
+          var lng = parseFloat(results[0].lon);
+          if (mapInstance) {
+            mapInstance.setView([lat, lng], 16);
+          }
+          setPinnedLocation(lat, lng, false);
+          document.getElementById("custAddress").value = results[0].display_name;
+        } else {
+          alert("Location not found! Try searching a nearby main road or city name, then drag the pin.");
+        }
+      } catch (e) {
+        alert("Error searching map. You can still drag the pin or type your address manually.");
+      } finally {
+        btn.innerText = "Search";
+      }
+    }
+
     function openCartDrawer() {
       renderCartDrawerItems();
       document.getElementById("cartDrawer").classList.remove("hidden");
+      initOrRefreshMap();
     }
 
     function closeCartDrawer() {
@@ -759,10 +930,13 @@
       }
       var name = document.getElementById("custName").value.trim();
       var address = document.getElementById("custAddress").value.trim();
-      if (!name || !address) {
-        alert("Please enter your Name and Delivery Address!");
+      var landmark = document.getElementById("custLandmark").value.trim();
+
+      if (!name || !address || !landmark) {
+        alert("Please enter your Name, Pinned Map Area, and House/Flat No. & Landmark!");
         return;
       }
+
       var entries = Object.values(cart);
       var total = 0;
       var lines = [];
@@ -773,10 +947,17 @@
         lines.push((i + 1) + ". *" + e.item.name + "* [" + e.portion.label + "] x " + e.qty + " = ₹" + sub);
       }
 
+      var mapsLink = "";
+      if (selectedLat && selectedLng) {
+        mapsLink = "https://www.google.com/maps?q=" + selectedLat + "," + selectedLng;
+      }
+
       var text = "*🍔 NEW ORDER — FOODY BITES*\n\n" +
                  "*👤 Name:* " + name + "\n" +
-                 "*📍 Address:* " + address + "\n\n" +
-                 "*🧾 Order Summary:*\n" + lines.join("\n") + "\n\n" +
+                 "*🏠 House/Flat & Landmark:* " + landmark + "\n" +
+                 "*📍 Map Area:* " + address + "\n" +
+                 (mapsLink ? ("*🗺️ Exact GPS Map Pin:* " + mapsLink + "\n") : "") +
+                 "\n*🧾 Order Summary:*\n" + lines.join("\n") + "\n\n" +
                  "*💰 Grand Total: ₹" + total + "*\n" +
                  "------------------------\n" +
                  "⚡ _Please confirm my order!_";
@@ -786,7 +967,7 @@
 
     // ================= ADMIN FUNCTIONS =================
     function openAdminModal() {
-      checkStoreStatusIST(); // Expire old dates first so form shows clean values!
+      checkStoreStatusIST();
       document.getElementById("admForceClosed").checked = !!STORE_CONFIG.forceClosed;
       document.getElementById("admClosedFrom").value = STORE_CONFIG.closedFrom || "";
       document.getElementById("admClosedUntil").value = STORE_CONFIG.closedUntil || "";
@@ -961,7 +1142,6 @@
         openAdminModal();
       }
     });
-    // Check every 15 seconds so expired temporary closures auto-reopen right away!
     setInterval(checkStoreStatusIST, 15000);
   </script>
 </body>
