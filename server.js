@@ -60,7 +60,7 @@ function autoExpireClosureIfNeeded(data) {
       cfg.closedFrom = "";
       cfg.closedUntil = "";
       cfg.closedReason = "";
-      return true; // Indicates we expired & reset the schedule
+      return true;
     }
   }
   return false;
@@ -85,7 +85,6 @@ async function getStoreData() {
     }
   }
 
-  // Check if a temporary closure has ended; if so, reset to default 10 AM - 10 PM!
   if (autoExpireClosureIfNeeded(cachedData)) {
     const file = storage.bucket(BUCKET_NAME).file(DATA_FILE);
     file.save(JSON.stringify(cachedData, null, 2), { contentType: 'application/json' })
@@ -105,13 +104,24 @@ app.post('/api/admin/update', async (req, res) => {
   if (password !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Invalid Admin Password!' });
   }
-  const { storeConfig, menu } = req.body;
+  const { storeConfig, categories, menu } = req.body;
   const current = await getStoreData();
+
+  let updatedCategories = Array.isArray(categories) && categories.length > 0
+    ? categories
+    : current.categories;
+
+  if (!updatedCategories.includes("All")) {
+    updatedCategories = ["All", ...updatedCategories];
+  }
+
   const updated = {
     ...current,
     storeConfig: storeConfig || current.storeConfig,
+    categories: updatedCategories,
     menu: menu || current.menu
   };
+
   autoExpireClosureIfNeeded(updated);
   cachedData = updated;
 

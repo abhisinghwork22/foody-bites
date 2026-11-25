@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Foody Bites — Craving Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus Jakarta Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Leaflet Interactive Map CSS & JS (100% Free, No API Key Needed) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -221,7 +221,7 @@
       <div class="p-4 bg-gray-900 text-white flex justify-between items-center">
         <div>
           <h3 class="font-extrabold text-base">⚙️ Foody Bites — Admin Portal</h3>
-          <p class="text-[11px] text-gray-400">Control store timing, closure announcements & menu items</p>
+          <p class="text-[11px] text-gray-400">Control store timing, closure announcements, categories & menu items</p>
         </div>
         <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-gray-800 text-gray-300 font-bold">✕</button>
       </div>
@@ -233,11 +233,27 @@
           <input id="adminPwd" type="password" placeholder="Enter Admin Password to save changes" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold" />
         </div>
 
-        <!-- Section 1: Store Closure & Timing Control -->
+        <!-- Section 1: Store Timing (Default IST Hours) & Temporary Closure -->
         <div class="border border-gray-200 rounded-2xl p-3.5 space-y-3 bg-gray-50">
-          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">🕙 Store Availability & Temporary Closure</h4>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">🕙 Store Availability & Default IST Timing</h4>
+
+          <!-- NEW: Edit Default Daily Opening & Closing Hours (IST) -->
+          <div class="bg-white p-2.5 rounded-xl border border-gray-200 space-y-2">
+            <p class="font-extrabold text-gray-800 text-xs">☀️ Default Daily Operating Hours (IST)</p>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block font-bold text-gray-600 text-[11px] mb-1">Opens At (IST)</label>
+                <select id="admOpenHourIST" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-bold text-gray-800"></select>
+              </div>
+              <div>
+                <label class="block font-bold text-gray-600 text-[11px] mb-1">Closes At (IST)</label>
+                <select id="admCloseHourIST" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-bold text-gray-800"></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scheduled Temporary Closure -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
             <div>
               <label class="block font-bold text-gray-600 text-[11px] mb-1">Close From (Date & Time)</label>
               <input type="datetime-local" id="admClosedFrom" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
@@ -259,22 +275,31 @@
           </label>
 
           <button type="button" onclick="clearClosureSchedule()" class="text-[11px] text-blue-600 font-extrabold underline block pt-1">
-            ↺ Clear & Reset to Default Hours (10 AM – 10 PM IST Open)
+            ↺ Clear Temporary Closure & Reset Default Hours (10 AM – 10 PM IST)
           </button>
         </div>
 
-        <!-- Section 2: Add New Menu Item -->
+        <!-- NEW Section 2: Manage / Add New Categories -->
+        <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5 bg-gray-50">
+          <div class="flex justify-between items-center border-b pb-1.5">
+            <h4 class="font-extrabold text-gray-900 text-sm">🗂️ Manage Dish Categories</h4>
+            <span class="text-[10px] text-gray-500 font-bold">Add or remove menu tabs</span>
+          </div>
+          <div id="adminCategoryPills" class="flex flex-wrap gap-1.5"></div>
+          <div class="flex gap-2 pt-1">
+            <input id="newCategoryName" type="text" placeholder="New Category (e.g. Rolls, Beverages, Combos)" class="flex-1 p-2 rounded-xl border border-gray-300 bg-white text-xs font-semibold" />
+            <button type="button" onclick="adminAddCategory()" class="bg-gray-900 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs hover:bg-black shrink-0">
+              + Add Category
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 3: Add New Menu Item -->
         <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5 bg-gray-50">
           <h4 class="font-extrabold text-gray-900 text-sm border-b pb-1.5">➕ Add New Dish to Menu</h4>
           <div class="grid grid-cols-2 gap-2">
             <input id="newDishName" type="text" placeholder="Dish Name (e.g. Egg Roll)" class="p-2 rounded-xl border border-gray-300 bg-white font-semibold" />
-            <select id="newDishCat" class="p-2 rounded-xl border border-gray-300 bg-white font-semibold">
-              <option value="Indo Chinese">Indo Chinese</option>
-              <option value="North Indian">North Indian</option>
-              <option value="South Indian">South Indian</option>
-              <option value="Bread">Bread</option>
-              <option value="Non-Veg">Non-Veg</option>
-            </select>
+            <select id="newDishCat" class="p-2 rounded-xl border border-gray-300 bg-white font-semibold"></select>
           </div>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-1.5 font-bold text-green-700">
@@ -283,13 +308,13 @@
             <input id="newDishBadge" type="text" placeholder="Badge (Optional: e.g. Bestseller)" class="flex-1 p-1.5 rounded-xl border border-gray-300 bg-white text-xs" />
           </div>
           <input id="newDishDesc" type="text" placeholder="Short description..." class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs" />
-          <input id="newDishPortions" type="text" placeholder="Portions format: Half:60, Full:110  OR  1 Pc:15" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-bold" />
+          <input id="newDishPortions" type="text" placeholder="Portions format: Half:60, Full:110 OR 1 Pc:15" class="w-full p-2 rounded-xl border border-gray-300 bg-white text-xs font-bold" />
           <button type="button" onclick="adminAddDish()" class="w-full bg-gray-900 text-white font-extrabold py-2 rounded-xl text-xs hover:bg-black">
             + Add Dish to List Below
           </button>
         </div>
 
-        <!-- Section 3: Edit Prices, Disable/Enable, or Delete Existing Menu Items -->
+        <!-- Section 4: Edit Prices, Disable/Enable, or Delete Existing Menu Items -->
         <div class="border border-gray-200 rounded-2xl p-3.5 space-y-2.5">
           <div class="flex justify-between items-center border-b pb-1.5">
             <h4 class="font-extrabold text-gray-900 text-sm">✏️ Edit Prices / Disable / Delete Dishes</h4>
@@ -353,14 +378,38 @@
     var selectedLat = null;
     var selectedLng = null;
 
+    // Helper to format 24-hour number (0-23) into readable 12-hour string (e.g. 10 -> "10:00 AM", 22 -> "10:00 PM")
+    function formatHour12(h) {
+      var hourNum = parseInt(h, 10);
+      if (isNaN(hourNum)) return "10:00 AM";
+      var suffix = hourNum >= 12 ? "PM" : "AM";
+      var h12 = hourNum % 12;
+      if (h12 === 0) h12 = 12;
+      return h12 + ":00 " + suffix;
+    }
+
+    function formatHourShort(h) {
+      var hourNum = parseInt(h, 10);
+      if (isNaN(hourNum)) return "10 AM";
+      var suffix = hourNum >= 12 ? "PM" : "AM";
+      var h12 = hourNum % 12;
+      if (h12 === 0) h12 = 12;
+      return h12 + " " + suffix;
+    }
+
     async function loadStoreFromServer() {
       try {
         var res = await fetch('/api/store');
         if (res.ok) {
           var data = await res.json();
           if (data.menu && data.menu.length > 0) MENU_DATA = data.menu;
-          if (data.categories) CATEGORIES = data.categories;
-          if (data.storeConfig) STORE_CONFIG = data.storeConfig;
+          if (data.categories && data.categories.length > 0) {
+            CATEGORIES = data.categories;
+            if (CATEGORIES.indexOf("All") === -1) CATEGORIES.unshift("All");
+          }
+          if (data.storeConfig) {
+            STORE_CONFIG = Object.assign({ openHourIST: 10, closeHourIST: 22 }, data.storeConfig);
+          }
         }
       } catch (e) {
         console.error("Using fallback menu:", e);
@@ -400,7 +449,23 @@
       var hourPart = istTimeParts.find(function(p) { return p.type === 'hour'; });
       var istHour = parseInt(hourPart ? hourPart.value : 0, 10) % 24;
 
-      var withinDefaultHours = (istHour >= STORE_CONFIG.openHourIST && istHour < STORE_CONFIG.closeHourIST);
+      var openHr = (STORE_CONFIG.openHourIST !== undefined) ? Number(STORE_CONFIG.openHourIST) : 10;
+      var closeHr = (STORE_CONFIG.closeHourIST !== undefined) ? Number(STORE_CONFIG.closeHourIST) : 22;
+
+      var withinDefaultHours = false;
+      if (openHr < closeHr) {
+        withinDefaultHours = (istHour >= openHr && istHour < closeHr);
+      } else if (openHr > closeHr) {
+        // Supports overnight hours (e.g. 6 PM to 2 AM)
+        withinDefaultHours = (istHour >= openHr || istHour < closeHr);
+      } else {
+        // 24 hours open if both set equal
+        withinDefaultHours = true;
+      }
+
+      var hoursRangeLong = formatHour12(openHr) + " to " + formatHour12(closeHr) + " IST";
+      var hoursRangeShort = formatHourShort(openHr) + " – " + formatHourShort(closeHr) + " IST";
+
       var withinAdminClosedWindow = false;
 
       if (STORE_CONFIG.closedUntil) {
@@ -432,7 +497,7 @@
         var reasonText = STORE_CONFIG.closedReason ? ("Reason: " + STORE_CONFIG.closedReason) : "Temporarily closed by store admin.";
         var untilText = STORE_CONFIG.closedUntil
           ? ("Re-opening on: " + formatDateTimeDisplay(STORE_CONFIG.closedUntil))
-          : "Regular hours: 10:00 AM to 10:00 PM IST";
+          : ("Regular hours: " + hoursRangeLong);
 
         currentClosedMessage = reasonText + "\n" + untilText;
         badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
@@ -452,14 +517,14 @@
         updateCartUI();
       } else if (!withinDefaultHours) {
         isShopOpen = false;
-        currentClosedMessage = "We only accept orders between 10:00 AM and 10:00 PM IST.";
+        currentClosedMessage = "We only accept orders between " + hoursRangeLong + ".";
         badge.className = "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
         badge.innerText = "Closed";
-        subtext.innerText = "Opens 10:00 AM – 10:00 PM IST";
+        subtext.innerText = "Opens " + hoursRangeShort;
 
         bannerTitle.innerText = "We are currently closed!";
-        bannerReason.innerText = "Orders can only be placed between 10:00 AM and 10:00 PM IST.";
-        bannerTime.innerText = "Ordering hours: 10:00 AM to 10:00 PM IST";
+        bannerReason.innerText = "Orders can only be placed between " + hoursRangeLong + ".";
+        bannerTime.innerText = "Ordering hours: " + hoursRangeLong;
         closedBanner.classList.remove("hidden");
 
         cart = {};
@@ -468,7 +533,7 @@
         isShopOpen = true;
         badge.className = "bg-green-100 text-green-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase";
         badge.innerText = "Open";
-        subtext.innerText = "Craving Solutions • ⚡ 10 AM – 10 PM IST";
+        subtext.innerText = "Craving Solutions • ⚡ " + hoursRangeShort;
         closedBanner.classList.add("hidden");
       }
 
@@ -489,10 +554,11 @@
       var html = "";
       for (var i = 0; i < CATEGORIES.length; i++) {
         var cat = CATEGORIES[i];
+        var safeCat = cat.replace(/'/g, "\\'");
         var cls = (activeCategory === cat)
           ? "bg-gray-900 text-white shadow-sm"
           : "bg-gray-100 text-gray-600 hover:bg-gray-200";
-        html += '<button onclick="setCategory(\'' + cat + '\')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ' + cls + '">' + cat + '</button>';
+        html += '<button onclick="setCategory(\'' + safeCat + '\')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition ' + cls + '">' + cat + '</button>';
       }
       document.getElementById("categoryTabs").innerHTML = html;
     }
@@ -553,7 +619,15 @@
         grouped[item.category].push(item);
       });
 
-      var groupKeys = Object.keys(grouped);
+      // Sort category groups according to CATEGORIES order
+      var groupKeys = Object.keys(grouped).sort(function(a, b) {
+        var idxA = CATEGORIES.indexOf(a);
+        var idxB = CATEGORIES.indexOf(b);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
+      });
+
       if (groupKeys.length === 0) {
         container.innerHTML = '<div class="text-center py-12 text-gray-400 font-bold text-sm">No dishes found matching your search.</div>';
         return;
@@ -766,7 +840,6 @@
 
     // ================= INTERACTIVE MAP & GPS LOCATION FUNCTIONS =================
     function initOrRefreshMap() {
-      // Default center (India - Ranchi/Jharkhand or central India) until user clicks GPS or searches
       var defaultLat = selectedLat || 23.3441;
       var defaultLng = selectedLng || 85.3096;
 
@@ -779,13 +852,11 @@
 
         mapMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(mapInstance);
 
-        // When user drags the pin
         mapMarker.on('dragend', function(e) {
           var pos = mapMarker.getLatLng();
           setPinnedLocation(pos.lat, pos.lng, true);
         });
 
-        // When user taps anywhere on the map
         mapInstance.on('click', function(e) {
           mapMarker.setLatLng(e.latlng);
           setPinnedLocation(e.latlng.lat, e.latlng.lng, true);
@@ -966,12 +1037,93 @@
     }
 
     // ================= ADMIN FUNCTIONS =================
+    function populateAdminHourSelects() {
+      var openSel = document.getElementById("admOpenHourIST");
+      var closeSel = document.getElementById("admCloseHourIST");
+      var openVal = (STORE_CONFIG.openHourIST !== undefined) ? Number(STORE_CONFIG.openHourIST) : 10;
+      var closeVal = (STORE_CONFIG.closeHourIST !== undefined) ? Number(STORE_CONFIG.closeHourIST) : 22;
+
+      var openHtml = "";
+      var closeHtml = "";
+      for (var h = 0; h < 24; h++) {
+        var label = formatHour12(h);
+        openHtml += '<option value="' + h + '" ' + (h === openVal ? 'selected' : '') + '>' + label + '</option>';
+        closeHtml += '<option value="' + h + '" ' + (h === closeVal ? 'selected' : '') + '>' + label + '</option>';
+      }
+      openSel.innerHTML = openHtml;
+      closeSel.innerHTML = closeHtml;
+    }
+
+    function renderAdminCategoriesUI() {
+      // 1. Render Category Pills with Delete option
+      var pillsContainer = document.getElementById("adminCategoryPills");
+      var pillsHtml = "";
+      for (var i = 0; i < CATEGORIES.length; i++) {
+        var cat = CATEGORIES[i];
+        if (cat === "All") continue;
+        pillsHtml += '<span class="inline-flex items-center gap-1.5 bg-white border border-gray-300 text-gray-800 px-2.5 py-1 rounded-xl text-xs font-extrabold shadow-sm">' +
+                       '<span>' + cat + '</span>' +
+                       '<button type="button" onclick="adminDeleteCategory(' + i + ')" class="text-red-500 hover:text-red-700 font-extrabold text-xs leading-none" title="Remove Category">✕</button>' +
+                     '</span>';
+      }
+      pillsContainer.innerHTML = pillsHtml || '<span class="text-xs text-gray-400">No custom categories yet.</span>';
+
+      // 2. Populate the Category Select Dropdown inside "Add New Dish"
+      var catSelect = document.getElementById("newDishCat");
+      var currentSelected = catSelect.value;
+      var selectHtml = "";
+      for (var j = 0; j < CATEGORIES.length; j++) {
+        if (CATEGORIES[j] === "All") continue;
+        var c = CATEGORIES[j];
+        selectHtml += '<option value="' + c + '" ' + (c === currentSelected ? 'selected' : '') + '>' + c + '</option>';
+      }
+      catSelect.innerHTML = selectHtml;
+    }
+
+    function adminAddCategory() {
+      var input = document.getElementById("newCategoryName");
+      var newCat = input.value.trim();
+      if (!newCat) {
+        alert("Please enter a category name (e.g. Rolls, Beverages, Combos)!");
+        return;
+      }
+      var exists = CATEGORIES.some(function(c) { return c.toLowerCase() === newCat.toLowerCase(); });
+      if (exists) {
+        alert('Category "' + newCat + '" already exists!');
+        return;
+      }
+      CATEGORIES.push(newCat);
+      input.value = "";
+      renderAdminCategoriesUI();
+      renderCategories();
+      // Select the newly created category automatically in the Add Dish dropdown
+      document.getElementById("newDishCat").value = newCat;
+    }
+
+    function adminDeleteCategory(catIdx) {
+      var catName = CATEGORIES[catIdx];
+      if (!catName || catName === "All") return;
+      var dishesInCat = MENU_DATA.filter(function(item) { return item.category === catName; }).length;
+      var msg = dishesInCat > 0
+        ? 'Category "' + catName + '" currently has ' + dishesInCat + ' dish(es). Remove this category tab anyway?'
+        : 'Remove category "' + catName + '"?';
+      if (confirm(msg)) {
+        CATEGORIES.splice(catIdx, 1);
+        if (activeCategory === catName) activeCategory = "All";
+        renderAdminCategoriesUI();
+        renderCategories();
+        renderMenu();
+      }
+    }
+
     function openAdminModal() {
       checkStoreStatusIST();
+      populateAdminHourSelects();
       document.getElementById("admForceClosed").checked = !!STORE_CONFIG.forceClosed;
       document.getElementById("admClosedFrom").value = STORE_CONFIG.closedFrom || "";
       document.getElementById("admClosedUntil").value = STORE_CONFIG.closedUntil || "";
       document.getElementById("admClosedReason").value = STORE_CONFIG.closedReason || "";
+      renderAdminCategoriesUI();
       renderAdminMenuList();
       document.getElementById("adminModal").classList.remove("hidden");
     }
@@ -984,6 +1136,8 @@
     }
 
     function clearClosureSchedule() {
+      document.getElementById("admOpenHourIST").value = "10";
+      document.getElementById("admCloseHourIST").value = "22";
       document.getElementById("admForceClosed").checked = false;
       document.getElementById("admClosedFrom").value = "";
       document.getElementById("admClosedUntil").value = "";
@@ -1055,6 +1209,10 @@
         return;
       }
 
+      if (CATEGORIES.indexOf(category) === -1) {
+        CATEGORIES.push(category);
+      }
+
       var portions = portionsRaw.split(",").map(function(part) {
         var splitPart = part.split(":");
         var label = splitPart[0] ? splitPart[0].trim() : "Full";
@@ -1079,7 +1237,7 @@
       document.getElementById("newDishDesc").value = "";
       document.getElementById("newDishPortions").value = "";
       renderAdminMenuList();
-      alert('Added "' + name + '" to list! Click "Save & Publish Live to Store" below to make it live.');
+      alert('Added "' + name + '" under "' + category + '"! Click "Save & Publish Live to Store" below to make it live.');
     }
 
     async function saveAdminChanges() {
@@ -1090,8 +1248,8 @@
       }
 
       var updatedConfig = {
-        openHourIST: 10,
-        closeHourIST: 22,
+        openHourIST: parseInt(document.getElementById("admOpenHourIST").value, 10),
+        closeHourIST: parseInt(document.getElementById("admCloseHourIST").value, 10),
         forceClosed: document.getElementById("admForceClosed").checked,
         closedFrom: document.getElementById("admClosedFrom").value,
         closedUntil: document.getElementById("admClosedUntil").value,
@@ -1110,6 +1268,7 @@
           },
           body: JSON.stringify({
             storeConfig: updatedConfig,
+            categories: CATEGORIES,
             menu: MENU_DATA
           })
         });
@@ -1120,14 +1279,16 @@
           return;
         }
         STORE_CONFIG = result.data.storeConfig;
+        if (result.data.categories) CATEGORIES = result.data.categories;
         MENU_DATA = result.data.menu;
         checkStoreStatusIST();
+        renderCategories();
         renderMenu();
         closeAdminModal();
         if (result.warning) {
           alert("⚠️ Saved in memory, but note:\n" + result.warning);
         } else {
-          alert("✅ Store updated live for all customers!");
+          alert("✅ Store timing, categories & menu updated live for all customers!");
         }
       } catch (err) {
         alert("Network error while saving changes.");
